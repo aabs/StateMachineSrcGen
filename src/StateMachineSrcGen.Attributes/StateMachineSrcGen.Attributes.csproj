@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>StateMachineSrcGen.Attributes</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>StateMachineSrcGen Contributors</Authors>
+    <Description>Marker attributes and interfaces for StateMachineSrcGen source generator. Reference this package to define state machines that are implemented at compile time.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/StateMachineSrcGen/StateMachineSrcGen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/StateMachineSrcGen/StateMachineSrcGen</RepositoryUrl>
+    <PackageTags>source-generator;state-machine;roslyn;attributes</PackageTags>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+    <IsRoslynComponent>true</IsRoslynComponent>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>StateMachineSrcGen</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>StateMachineSrcGen Contributors</Authors>
+    <Description>A Roslyn Incremental Source Generator that transforms concise, attribute-decorated C# class declarations into fully-functional state machine implementations at compile time.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/StateMachineSrcGen/StateMachineSrcGen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/StateMachineSrcGen/StateMachineSrcGen</RepositoryUrl>
+    <PackageTags>source-generator;state-machine;roslyn;code-generation</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Analyzer/Generator Packaging -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StateMachineSrcGen.Attributes\StateMachineSrcGen.Attributes.csproj" />
+  </ItemGroup>
+
+  <!-- Pack the generator DLL as an analyzer -->
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+  <!-- Pack the attributes assembly as a lib dependency -->
+  <ItemGroup>
+    <None Include="$(OutputPath)\StateMachineSrcGen.Attributes.dll" Pack="true" PackagePath="lib/netstandard2.0" Visible="false" />
+  </ItemGroup>
+
+  <!-- Include README in package -->
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
+  </ItemGroup>
+
+</Project>

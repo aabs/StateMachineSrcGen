@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          echo "VERSION=$TAG" >> $GITHUB_OUTPUT
+          echo "Derived version: $TAG"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore /p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Pack NuGet packages
+        run: |
+          dotnet pack src/StateMachineSrcGen/StateMachineSrcGen.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./nupkgs \
+            /p:Version=${{ steps.version.outputs.VERSION }}
+          dotnet pack src/StateMachineSrcGen.Attributes/StateMachineSrcGen.Attributes.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./nupkgs \
+            /p:Version=${{ steps.version.outputs.VERSION }}
+
+      - name: Push to NuGet.org
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
