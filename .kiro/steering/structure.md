@@ -11,18 +11,24 @@ StateMachineSrcGen/
 │   │   ├── Generation/              # C# code emission (pure functions)
 │   │   ├── Diagnostics/             # Diagnostic descriptors and reporting
 │   │   └── Pipeline/                # Incremental pipeline wiring
-│   ├── StateMachineSrcGen.Attributes/ # Public marker attributes (lightweight, no Roslyn dependency)
+│   └── StateMachineSrcGen.Attributes/ # Public marker attributes (lightweight, no Roslyn dependency)
+├── tests/
 │   └── StateMachineSrcGen.Tests/    # All tests (xUnit + FsCheck property-based)
 │       ├── Parsing/                 # Property tests for syntax analysis
 │       ├── Analysis/                # Property tests for model building
 │       ├── Generation/              # Property tests + snapshot tests for emitted code
-│       └── Integration/             # End-to-end in-memory compilation tests
+│       ├── DataModel/               # Value equality property tests
+│       ├── Orchestration/           # Runtime behavior property tests
+│       ├── Integration/             # End-to-end in-memory compilation tests
+│       └── Generators/              # FsCheck custom Arbitrary generators
+├── docs/
+│   └── ARCHITECTURE.md             # Internal architecture blueprint for developers
 └── StateMachineSrcGen.slnx          # Solution file (.slnx format)
 ```
 
 ## Conventions
 
-- All projects live under `src/`
+- Source projects live under `src/`; test projects live under `tests/`
 - Generator project targets `netstandard2.0`; test project targets `net9.0` (or latest)
 - Attributes assembly is lightweight — no Roslyn dependency, so consumers only reference this
 - Pipeline logic is structured as pure functions in Parsing → Analysis → Generation stages
