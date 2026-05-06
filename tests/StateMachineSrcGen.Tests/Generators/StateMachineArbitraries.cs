@@ -311,8 +311,6 @@ public static class StateMachineArbitraries
                               Location = Location.None
                           })),
                       Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-                      ImplementsIStateMachine = true,
-                      ImplementsIStatePersistence = true,
                       ImplementsIDispatchableEvent = true,
                       EventIdTypeName = "string",
                       Location = Location.None
@@ -329,8 +327,6 @@ public static class StateMachineArbitraries
             CreateInvalidMachine(stateCount: 0),
             CreateInvalidMachine(noInitialState: true),
             CreateInvalidMachine(multipleInitialStates: true),
-            CreateInvalidMachine(missingIStateMachine: true),
-            CreateInvalidMachine(missingIStatePersistence: true),
             CreateInvalidMachine(missingModifiers: true)
         ).ToArbitrary();
     }
@@ -339,8 +335,6 @@ public static class StateMachineArbitraries
         int stateCount = 2,
         bool noInitialState = false,
         bool multipleInitialStates = false,
-        bool missingIStateMachine = false,
-        bool missingIStatePersistence = false,
         bool missingModifiers = false)
     {
         ParsedState[] states;
@@ -409,8 +403,6 @@ public static class StateMachineArbitraries
             Triggers = new EquatableArray<ParsedTrigger>(triggers.ToImmutableArray()),
             Handlers = new EquatableArray<ParsedHandler>(handlers.ToImmutableArray()),
             Modifiers = missingModifiers ? ClassModifiers.Public : (ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static),
-            ImplementsIStateMachine = !missingIStateMachine,
-            ImplementsIStatePersistence = !missingIStatePersistence,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None

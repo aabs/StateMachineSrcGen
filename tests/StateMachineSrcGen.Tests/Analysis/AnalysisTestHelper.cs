@@ -35,8 +35,6 @@ internal static class AnalysisTestHelper
             Handlers = new EquatableArray<ParsedHandler>(ImmutableArray.Create(
                 CreateTransitionHandler("HandleStart", "Idle", "Running", "Start", stateType, eventType))),
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -51,8 +49,6 @@ internal static class AnalysisTestHelper
         ParsedTrigger[] triggers,
         ParsedHandler[] handlers,
         ClassModifiers modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-        bool implementsIStateMachine = true,
-        bool implementsIStatePersistence = true,
         bool implementsIDispatchableEvent = true,
         string? eventIdTypeName = "string",
         string stateType = "MyState",
@@ -68,8 +64,6 @@ internal static class AnalysisTestHelper
             Triggers = new EquatableArray<ParsedTrigger>(triggers.ToImmutableArray()),
             Handlers = new EquatableArray<ParsedHandler>(handlers.ToImmutableArray()),
             Modifiers = modifiers,
-            ImplementsIStateMachine = implementsIStateMachine,
-            ImplementsIStatePersistence = implementsIStatePersistence,
             ImplementsIDispatchableEvent = implementsIDispatchableEvent,
             EventIdTypeName = eventIdTypeName,
             Location = Location.None

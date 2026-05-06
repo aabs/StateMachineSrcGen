@@ -7,7 +7,7 @@ namespace StateMachineSrcGen.Analysis;
 
 /// <summary>
 /// Validates the structural shape of the state machine class declaration:
-/// public, partial, static, two generic type parameters, required interface implementations.
+/// public, partial, static modifiers and IDispatchableEvent on the event type.
 /// </summary>
 internal static class StructureValidator
 {
@@ -33,22 +33,6 @@ internal static class StructureValidator
                 DiagnosticDescriptors.InvalidClassDeclaration,
                 input.Location,
                 string.Join(", ", missingModifiers)));
-        }
-
-        // Check IStateMachine implementation
-        if (!input.ImplementsIStateMachine)
-        {
-            diagnostics.Add(Diagnostic.Create(
-                DiagnosticDescriptors.MissingIStateMachineImplementation,
-                input.Location));
-        }
-
-        // Check IStatePersistence implementation
-        if (!input.ImplementsIStatePersistence)
-        {
-            diagnostics.Add(Diagnostic.Create(
-                DiagnosticDescriptors.MissingIStatePersistenceImplementation,
-                input.Location));
         }
 
         // Check IDispatchableEvent implementation on event type

@@ -82,17 +82,13 @@ public class ParsingDeterminismProperties
 
             [State("{{stateName}}", IsInitial = true)]
             [Trigger("{{triggerName}}")]
-            public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class {{className}}
             {
                 [Transition("{{stateName}}", "{{stateName}}", "{{triggerName}}")]
                 public static MyState HandleEvent(MyState state, MyEvent @event)
                 {
                     return state;
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -127,17 +123,13 @@ public class ParsingDeterminismProperties
 
             [State("Idle", IsInitial = true)]
             [Trigger("Start")]
-            internal partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            internal partial class {{className}}
             {
                 [Transition("Idle", "Running", "Start")]
                 public static MyState HandleStart(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "Running" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 

@@ -39,17 +39,13 @@ public class DispatchInterfaceParsingProperties
 
                     [State("Idle", IsInitial = true)]
                     [Trigger("Start")]
-                    public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+                    public static partial class {{className}}
                     {
                         [Transition("Idle", "Running", "Start")]
                         public static MyState HandleStart(MyState state, MyEvent @event)
                         {
                             return state with { CurrentState = "Running" };
                         }
-
-                        public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                        public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                        public Task SaveAsync(MyState state) => throw new NotImplementedException();
                     }
                     """;
 
@@ -97,17 +93,13 @@ public class DispatchInterfaceParsingProperties
 
                     [State("Idle", IsInitial = true)]
                     [Trigger("Start")]
-                    public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+                    public static partial class {{className}}
                     {
                         [Transition("Idle", "Running", "Start")]
                         public static MyState HandleStart(MyState state, MyEvent @event)
                         {
                             return state with { CurrentState = "Running" };
                         }
-
-                        public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                        public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                        public Task SaveAsync(MyState state) => throw new NotImplementedException();
                     }
                     """;
 
@@ -152,17 +144,13 @@ public class DispatchInterfaceParsingProperties
 
                     [State("Idle", IsInitial = true)]
                     [Trigger("Start")]
-                    public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+                    public static partial class {{className}}
                     {
                         [Transition("Idle", "Running", "Start")]
                         public static MyState HandleStart(MyState state, MyEvent @event)
                         {
                             return state with { CurrentState = "Running" };
                         }
-
-                        public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                        public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                        public Task SaveAsync(MyState state) => throw new NotImplementedException();
                     }
                     """;
 

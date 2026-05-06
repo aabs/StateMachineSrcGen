@@ -1,0 +1,115 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=StateMachineSrcGen
+CommandLineArgsForDesignTimeEvaluation=-langversion:latest -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=7.3
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=StateMachineSrcGen
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../../StateMachineSrcGen.slnx
+TargetFrameworkIdentifier=.NETStandard
+TargetPath=<PATH>bin/Debug/netstandard2.0/StateMachineSrcGen.dll
+TargetRefPath=
+TemporaryDependencyNodeTargetIdentifier=netstandard2.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,RS2008,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/define:TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;NETSTANDARD1_0_OR_GREATER;NETSTANDARD1_1_OR_GREATER;NETSTANDARD1_2_OR_GREATER;NETSTANDARD1_3_OR_GREATER;NETSTANDARD1_4_OR_GREATER;NETSTANDARD1_5_OR_GREATER;NETSTANDARD1_6_OR_GREATER;NETSTANDARD2_0_OR_GREATER
+/highentropyva+
+/nullable:enable
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj/Debug/netstandard2.0/StateMachineSrcGen.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:latest
+/warnaserror+:NU1605
+
+[sourceFiles]
+Analysis/
+ AnalysisPipeline.cs
+ SignatureValidator.cs
+ StateValidator.cs
+ StructureValidator.cs
+ TransitionValidator.cs
+ TriggerValidator.cs
+ClassModifiers.cs
+CompilerPolyfills.cs
+Diagnostics/DiagnosticDescriptors.cs
+EquatableArray.cs
+Generation/
+ EventDispatchEmitter.cs
+ GenerationPipeline.cs
+ HandleMethodEmitter.cs
+ LockEmitter.cs
+ OrchestrationEmitter.cs
+ PersistenceEmitter.cs
+ SourceFormatter.cs
+ TransitionEvaluatorEmitter.cs
+HandlerKind.cs
+MethodSignature.cs
+obj/Debug/netstandard2.0/
+ .NETStandard,Version=v2.0.AssemblyAttributes.cs
+ StateMachineSrcGen.AssemblyInfo.cs
+ParameterInfo.cs
+ParsedHandler.cs
+ParsedState.cs
+ParsedStateMachine.cs
+ParsedTrigger.cs
+Parsing/
+ DeclarationParser.cs
+ HandlerParser.cs
+ ParsedModelFactory.cs
+ ParsingPipeline.cs
+ SyntaxExtractor.cs
+Pipeline/StateMachineGenerator.cs
+ValidatedState.cs
+ValidatedStateMachine.cs
+ValidatedTransition.cs
+
+[metadataReferences]
+../StateMachineSrcGen.Attributes/bin/Debug/netstandard2.0/StateMachineSrcGen.Attributes.dll
+<NUGET>/
+ microsoft.codeanalysis.common/4.12.0/lib/netstandard2.0/Microsoft.CodeAnalysis.dll
+ microsoft.codeanalysis.csharp/4.12.0/lib/netstandard2.0/Microsoft.CodeAnalysis.CSharp.dll
+ system.buffers/4.5.1/ref/netstandard2.0/System.Buffers.dll
+ system.collections.immutable/8.0.0/lib/netstandard2.0/System.Collections.Immutable.dll
+ system.memory/4.5.5/lib/netstandard2.0/System.Memory.dll
+ system.numerics.vectors/4.5.0/ref/netstandard2.0/System.Numerics.Vectors.dll
+ system.reflection.metadata/8.0.0/lib/netstandard2.0/System.Reflection.Metadata.dll
+ system.runtime.compilerservices.unsafe/6.0.0/lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll
+ system.text.encoding.codepages/7.0.0/lib/netstandard2.0/System.Text.Encoding.CodePages.dll
+ system.threading.tasks.extensions/4.5.4/lib/netstandard2.0/System.Threading.Tasks.Extensions.dll
+
+[analyzerReferences]
+<NUGET>/microsoft.codeanalysis.analyzers/3.3.4/analyzers/dotnet/cs/
+ Microsoft.CodeAnalysis.Analyzers.dll
+ Microsoft.CodeAnalysis.CSharp.Analyzers.dll
+
+[analyzerConfigFiles]
+obj/Debug/netstandard2.0/StateMachineSrcGen.GeneratedMSBuildEditorConfig.editorconfig

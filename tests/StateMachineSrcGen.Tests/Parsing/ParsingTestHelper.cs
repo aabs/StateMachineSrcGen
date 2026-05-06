@@ -96,6 +96,7 @@ internal static class ParsingTestHelper
 
     /// <summary>
     /// Generates a valid state machine class source with the given parameters.
+    /// No interface implementations required — types are inferred from handler signatures.
     /// </summary>
     public static string GenerateValidStateMachineSource(
         string className,
@@ -122,17 +123,13 @@ internal static class ParsingTestHelper
             [State("{{stateName}}", IsInitial = true)]
             [State("{{toState}}")]
             [Trigger("{{triggerName}}")]
-            public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class {{className}}
             {
                 [Transition("{{fromState}}", "{{toState}}", "{{trigger}}")]
                 public static MyState {{handlerMethodName}}(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "{{toState}}" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
     }
@@ -145,8 +142,6 @@ internal static class ParsingTestHelper
         bool isPartial,
         bool isStatic,
         int genericParamCount,
-        bool implementsIStateMachine = true,
-        bool implementsIStatePersistence = true,
         bool implementsIDispatchableEvent = true)
     {
         var accessModifier = isPublic ? "public" : "internal";
@@ -161,12 +156,6 @@ internal static class ParsingTestHelper
             3 => "<MyState, MyEvent, Extra>",
             _ => "<" + string.Join(", ", Enumerable.Range(1, genericParamCount).Select(i => $"T{i}")) + ">"
         };
-
-        var interfaces = new System.Collections.Generic.List<string>();
-        if (implementsIStateMachine) interfaces.Add("IStateMachine<MyState, MyEvent>");
-        if (implementsIStatePersistence) interfaces.Add("IStatePersistence<MyState>");
-
-        var interfaceList = interfaces.Count > 0 ? " : " + string.Join(", ", interfaces) : "";
 
         var eventTypeDecl = implementsIDispatchableEvent
             ? "public record MyEvent(string EventType) : IDispatchableEvent<string>\n{\n    public string GetEventId() => EventType;\n}"
@@ -184,17 +173,13 @@ internal static class ParsingTestHelper
 
             [State("Idle", IsInitial = true)]
             [Trigger("Start")]
-            {{accessModifier}} {{staticModifier}} {{partialModifier}} class TestMachine{{genericParams}}{{interfaceList}}
+            {{accessModifier}} {{staticModifier}} {{partialModifier}} class TestMachine{{genericParams}}
             {
                 [Transition("Idle", "Running", "Start")]
                 public static MyState HandleStart(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "Running" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
     }
@@ -227,17 +212,13 @@ internal static class ParsingTestHelper
             [State("Idle", IsInitial = true)]
             [State("Running")]
             [Trigger("Start")]
-            public static partial class TestMachine : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class TestMachine
             {
                 [Transition("Idle", "Running", "Start")]
                 {{accessModifier}} {{staticModifier}} {{returnType}} HandleStart({{parameters}})
                 {
                     return default!;
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
     }

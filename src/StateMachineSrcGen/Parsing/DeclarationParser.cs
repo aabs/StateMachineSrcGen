@@ -10,7 +10,7 @@ namespace StateMachineSrcGen.Parsing;
 
 /// <summary>
 /// Extracts class-level information: modifiers, generic type parameters,
-/// interface implementations, and class-level attributes ([State], [Trigger]).
+/// inferred state/event types from handler signatures, and class-level attributes ([State], [Trigger]).
 /// </summary>
 internal static class DeclarationParser
 {
@@ -24,8 +24,6 @@ internal static class DeclarationParser
         public string Namespace { get; init; }
         public string StateTypeName { get; init; }
         public string EventTypeName { get; init; }
-        public bool ImplementsIStateMachine { get; init; }
-        public bool ImplementsIStatePersistence { get; init; }
         public bool ImplementsIDispatchableEvent { get; init; }
         public string? EventIdTypeName { get; init; }
         public ImmutableArray<ParsedState> States { get; init; }
@@ -35,7 +33,7 @@ internal static class DeclarationParser
     }
 
     /// <summary>
-    /// Parses the class declaration to extract modifiers, interfaces, states, and triggers.
+    /// Parses the class declaration to extract modifiers, inferred types, states, and triggers.
     /// Returns diagnostics if the declaration is invalid.
     /// </summary>
     public static (DeclarationResult Result, ImmutableArray<Diagnostic> Diagnostics) Parse(
@@ -80,28 +78,12 @@ internal static class DeclarationParser
                 string.Join(", ", missingModifiers)));
         }
 
-        // Detect IStateMachine<TState, TEvent>
-        var (implementsIStateMachine, stateTypeName, eventTypeName) = DetectIStateMachine(classSymbol);
+        // Infer TState and TEvent from the first [Transition] handler's parameters
+        var (stateTypeName, eventTypeName) = InferTypesFromHandlers(classDeclaration, semanticModel);
 
-        if (!implementsIStateMachine)
-        {
-            diagnostics.Add(Diagnostic.Create(
-                DiagnosticDescriptors.MissingIStateMachineImplementation,
-                location));
-        }
-
-        // Detect IStatePersistence<TState>
-        var implementsIStatePersistence = DetectIStatePersistence(classSymbol);
-
-        if (!implementsIStatePersistence)
-        {
-            diagnostics.Add(Diagnostic.Create(
-                DiagnosticDescriptors.MissingIStatePersistenceImplementation,
-                location));
-        }
-
-        // Detect IDispatchableEvent<TEventId> on the event type
-        var (implementsIDispatchableEvent, eventIdTypeName) = DetectIDispatchableEvent(classSymbol);
+        // Detect IDispatchableEvent<TEventId> on the inferred event type
+        var (implementsIDispatchableEvent, eventIdTypeName) = DetectIDispatchableEvent(
+            classSymbol, eventTypeName, semanticModel, classDeclaration);
 
         // Extract [State] and [Trigger] attributes
         var states = ExtractStates(classDeclaration, semanticModel);
@@ -114,10 +96,8 @@ internal static class DeclarationParser
             Modifiers = modifiers,
             ClassName = className,
             Namespace = ns,
-            StateTypeName = stateTypeName ?? "Unknown",
-            EventTypeName = eventTypeName ?? "Unknown",
-            ImplementsIStateMachine = implementsIStateMachine,
-            ImplementsIStatePersistence = implementsIStatePersistence,
+            StateTypeName = stateTypeName,
+            EventTypeName = eventTypeName,
             ImplementsIDispatchableEvent = implementsIDispatchableEvent,
             EventIdTypeName = eventIdTypeName,
             States = states,
@@ -168,63 +148,116 @@ internal static class DeclarationParser
         return "global";
     }
 
-    private static (bool Implements, string? StateTypeName, string? EventTypeName) DetectIStateMachine(
-        INamedTypeSymbol? classSymbol)
+    /// <summary>
+    /// Infers TState and TEvent from the first [Transition] handler method's parameters.
+    /// TState = first parameter type, TEvent = second parameter type.
+    /// Returns ("Unknown", "Unknown") if no transition handler is found.
+    /// </summary>
+    private static (string StateTypeName, string EventTypeName) InferTypesFromHandlers(
+        ClassDeclarationSyntax classDeclaration,
+        SemanticModel semanticModel)
     {
-        if (classSymbol is null)
-            return (false, null, null);
-
-        foreach (var iface in classSymbol.AllInterfaces)
+        foreach (var member in classDeclaration.Members)
         {
-            if (iface.Name == "IStateMachine" &&
-                iface.ContainingNamespace?.ToString() == "StateMachineSrcGen" &&
-                iface.TypeArguments.Length == 2)
+            if (member is not MethodDeclarationSyntax method)
+                continue;
+
+            foreach (var attributeList in method.AttributeLists)
             {
-                var stateType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-                var eventType = iface.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-                return (true, stateType, eventType);
+                foreach (var attribute in attributeList.Attributes)
+                {
+                    var symbolInfo = semanticModel.GetSymbolInfo(attribute);
+                    var attrSymbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
+
+                    if (attrSymbol is null)
+                        continue;
+
+                    var containingType = attrSymbol.ContainingType;
+                    if (containingType?.Name != "TransitionAttribute" ||
+                        containingType.ContainingNamespace?.ToString() != "StateMachineSrcGen")
+                        continue;
+
+                    // Found a [Transition] handler — extract parameter types
+                    var parameters = method.ParameterList.Parameters;
+                    if (parameters.Count >= 2)
+                    {
+                        var stateParamType = parameters[0].Type;
+                        var eventParamType = parameters[1].Type;
+
+                        if (stateParamType != null && eventParamType != null)
+                        {
+                            var stateTypeInfo = semanticModel.GetTypeInfo(stateParamType);
+                            var eventTypeInfo = semanticModel.GetTypeInfo(eventParamType);
+
+                            var stateTypeName = stateTypeInfo.Type?.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+                                                ?? stateParamType.ToString();
+                            var eventTypeName = eventTypeInfo.Type?.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)
+                                                ?? eventParamType.ToString();
+
+                            return (stateTypeName, eventTypeName);
+                        }
+                    }
+
+                    // Handler found but has fewer than 2 parameters — use Unknown
+                    return ("Unknown", "Unknown");
+                }
             }
         }
 
-        return (false, null, null);
+        // No transition handler found
+        return ("Unknown", "Unknown");
     }
 
-    private static bool DetectIStatePersistence(INamedTypeSymbol? classSymbol)
-    {
-        if (classSymbol is null)
-            return false;
-
-        foreach (var iface in classSymbol.AllInterfaces)
-        {
-            if (iface.Name == "IStatePersistence" &&
-                iface.ContainingNamespace?.ToString() == "StateMachineSrcGen" &&
-                iface.TypeArguments.Length == 1)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
+    /// <summary>
+    /// Detects whether the inferred event type implements IDispatchableEvent&lt;TEventId&gt;.
+    /// Looks up the event type symbol from the semantic model and checks its interfaces.
+    /// </summary>
     private static (bool Implements, string? EventIdTypeName) DetectIDispatchableEvent(
-        INamedTypeSymbol? classSymbol)
+        INamedTypeSymbol? classSymbol,
+        string eventTypeName,
+        SemanticModel semanticModel,
+        ClassDeclarationSyntax classDeclaration)
     {
-        if (classSymbol is null)
+        if (eventTypeName == "Unknown")
             return (false, null);
 
-        // Find the event type symbol from IStateMachine's second type argument
+        // Try to find the event type symbol by looking at the first transition handler's second parameter
         INamedTypeSymbol? eventTypeSymbol = null;
-        foreach (var iface in classSymbol.AllInterfaces)
+
+        foreach (var member in classDeclaration.Members)
         {
-            if (iface.Name == "IStateMachine" &&
-                iface.ContainingNamespace?.ToString() == "StateMachineSrcGen" &&
-                iface.TypeArguments.Length == 2)
+            if (member is not MethodDeclarationSyntax method)
+                continue;
+
+            foreach (var attributeList in method.AttributeLists)
             {
-                eventTypeSymbol = iface.TypeArguments[1] as INamedTypeSymbol;
-                break;
+                foreach (var attribute in attributeList.Attributes)
+                {
+                    var symbolInfo = semanticModel.GetSymbolInfo(attribute);
+                    var attrSymbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
+
+                    if (attrSymbol is null)
+                        continue;
+
+                    var containingType = attrSymbol.ContainingType;
+                    if (containingType?.Name != "TransitionAttribute" ||
+                        containingType.ContainingNamespace?.ToString() != "StateMachineSrcGen")
+                        continue;
+
+                    // Found a [Transition] handler — get the event type symbol
+                    var parameters = method.ParameterList.Parameters;
+                    if (parameters.Count >= 2 && parameters[1].Type != null)
+                    {
+                        var eventTypeInfo = semanticModel.GetTypeInfo(parameters[1].Type!);
+                        eventTypeSymbol = eventTypeInfo.Type as INamedTypeSymbol;
+                    }
+
+                    goto FoundHandler;
+                }
             }
         }
+
+        FoundHandler:
 
         if (eventTypeSymbol is null)
             return (false, null);

@@ -162,8 +162,6 @@ public class AnalysisReliabilityProperties
                 triggers: new[] { AnalysisTestHelper.CreateTrigger("Go") },
                 handlers: Array.Empty<ParsedHandler>(),
                 modifiers: ClassModifiers.None,
-                implementsIStateMachine: false,
-                implementsIStatePersistence: false,
                 implementsIDispatchableEvent: false);
 
             var (_, _) = AnalysisPipeline.Analyze(input);

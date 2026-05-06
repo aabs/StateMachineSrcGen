@@ -33,12 +33,6 @@ public readonly record struct ParsedStateMachine : IEquatable<ParsedStateMachine
     /// <summary>Gets the class modifiers (public, partial, static).</summary>
     public required ClassModifiers Modifiers { get; init; }
 
-    /// <summary>Gets whether the class implements IStateMachine.</summary>
-    public required bool ImplementsIStateMachine { get; init; }
-
-    /// <summary>Gets whether the class implements IStatePersistence.</summary>
-    public required bool ImplementsIStatePersistence { get; init; }
-
     /// <summary>Gets whether the event type implements IDispatchableEvent.</summary>
     public required bool ImplementsIDispatchableEvent { get; init; }
 

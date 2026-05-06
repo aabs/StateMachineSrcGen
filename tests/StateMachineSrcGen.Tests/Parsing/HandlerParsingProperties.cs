@@ -1,9 +1,7 @@
 // Feature: state-machine-source-generator, Property 1: Parsing extracts handler attributes correctly
 // Feature: state-machine-source-generator, Property 27: Class declaration validation
-// Feature: state-machine-source-generator, Property 28: IStateMachine implementation validation
 // Feature: state-machine-source-generator, Property 29: Handler signature validation
-// Feature: state-machine-source-generator, Property 30: IStatePersistence implementation validation
-// **Validates: Requirements 1.1, 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.7, 14.8**
+// **Validates: Requirements 1.1, 14.1, 14.2, 14.3, 14.5, 14.6, 14.7, 14.8**
 
 using System.Collections.Immutable;
 using System.Linq;
@@ -18,8 +16,7 @@ namespace StateMachineSrcGen.Tests.Parsing;
 
 /// <summary>
 /// Property-based tests for the parsing stage covering handler attribute extraction,
-/// class declaration validation, interface implementation validation, handler signature
-/// validation, and persistence validation.
+/// class declaration validation, and handler signature validation.
 /// </summary>
 public class HandlerParsingProperties
 {
@@ -53,17 +50,13 @@ public class HandlerParsingProperties
             [State("{{fromState}}", IsInitial = true)]
             [State("{{toState}}")]
             [Trigger("{{trigger}}")]
-            public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class {{className}}
             {
                 [Transition("{{fromState}}", "{{toState}}", "{{trigger}}")]
                 public static MyState {{methodName}}(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "{{toState}}" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -105,7 +98,7 @@ public class HandlerParsingProperties
             [State("{{fromState}}", IsInitial = true)]
             [State("{{toState}}")]
             [Trigger("{{trigger}}")]
-            public static partial class TestMachine : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class TestMachine
             {
                 [Guard("{{fromState}}", "{{toState}}", "{{trigger}}")]
                 public static bool CanTransition(MyState state, MyEvent @event)
@@ -118,10 +111,6 @@ public class HandlerParsingProperties
                 {
                     return state with { CurrentState = "{{toState}}" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -161,7 +150,7 @@ public class HandlerParsingProperties
             [State("{{fromState}}", IsInitial = true)]
             [State("{{toState}}")]
             [Trigger("{{trigger}}")]
-            public static partial class TestMachine : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class TestMachine
             {
                 [Transition("{{fromState}}", "{{toState}}", "{{trigger}}")]
                 public static MyState DoTransition(MyState state, MyEvent @event)
@@ -173,10 +162,6 @@ public class HandlerParsingProperties
                 public static void AfterTransition(MyState state, MyEvent @event)
                 {
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -217,17 +202,13 @@ public class HandlerParsingProperties
             [State("{{fromState}}", IsInitial = true)]
             [State("{{toState}}")]
             [Trigger("{{trigger}}")]
-            public static partial class TestMachine : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class TestMachine
             {
                 [Transition("{{fromState}}", "{{toState}}", "{{trigger}}", EventId = "{{eventId}}")]
                 public static MyState HandleEvent(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "{{toState}}" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -264,17 +245,13 @@ public class HandlerParsingProperties
 
             [State("Idle", IsInitial = true)]
             [Trigger("Start")]
-            internal static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            internal static partial class {{className}}
             {
                 [Transition("Idle", "Running", "Start")]
                 public static MyState HandleStart(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "Running" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -306,17 +283,13 @@ public class HandlerParsingProperties
 
             [State("Idle", IsInitial = true)]
             [Trigger("Start")]
-            public static class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static class {{className}}
             {
                 [Transition("Idle", "Running", "Start")]
                 public static MyState HandleStart(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "Running" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -348,17 +321,13 @@ public class HandlerParsingProperties
 
             [State("Idle", IsInitial = true)]
             [Trigger("Start")]
-            public partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public partial class {{className}}
             {
                 [Transition("Idle", "Running", "Start")]
                 public static MyState HandleStart(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "Running" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -442,17 +411,13 @@ public class HandlerParsingProperties
 
             [State("Idle", IsInitial = true)]
             [Trigger("Start")]
-            public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
+            public static partial class {{className}}
             {
                 [Transition("Idle", "Running", "Start")]
                 public static MyState HandleStart(MyState state, MyEvent @event)
                 {
                     return state with { CurrentState = "Running" };
                 }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
             }
             """;
 
@@ -462,92 +427,6 @@ public class HandlerParsingProperties
             return true; // stub: not yet implemented
 
         return !diagnostics.Any(d => d.Id == "SMSG010");
-    }
-
-    // ─── Property 28: IStateMachine implementation validation ────────────────────
-    // Test detection of missing or incorrectly parameterized IStateMachine (SMSG011).
-
-    [Property]
-    public bool IStateMachine_Missing_EmitsSMSG011(NonEmptyString classRaw)
-    {
-        var className = ToIdentifier(classRaw);
-
-        var source = $$"""
-            using System;
-            using System.Threading.Tasks;
-            using StateMachineSrcGen;
-
-            namespace TestNamespace;
-
-            public record MyState(string CurrentState);
-            public record MyEvent(string EventType) : IDispatchableEvent<string>
-            {
-                public string GetEventId() => EventType;
-            }
-
-            [State("Idle", IsInitial = true)]
-            [Trigger("Start")]
-            public static partial class {{className}} : IStatePersistence<MyState>
-            {
-                [Transition("Idle", "Running", "Start")]
-                public static MyState HandleStart(MyState state, MyEvent @event)
-                {
-                    return state with { CurrentState = "Running" };
-                }
-
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
-            }
-            """;
-
-        var (result, diagnostics) = ParsingTestHelper.ParseSource(source);
-
-        if (result is null && diagnostics.IsEmpty)
-            return true; // stub: not yet implemented
-
-        return diagnostics.Any(d => d.Id == "SMSG011");
-    }
-
-    [Property]
-    public bool IStateMachine_Present_NoSMSG011(NonEmptyString classRaw)
-    {
-        var className = ToIdentifier(classRaw);
-
-        var source = $$"""
-            using System;
-            using System.Threading.Tasks;
-            using StateMachineSrcGen;
-
-            namespace TestNamespace;
-
-            public record MyState(string CurrentState);
-            public record MyEvent(string EventType) : IDispatchableEvent<string>
-            {
-                public string GetEventId() => EventType;
-            }
-
-            [State("Idle", IsInitial = true)]
-            [Trigger("Start")]
-            public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
-            {
-                [Transition("Idle", "Running", "Start")]
-                public static MyState HandleStart(MyState state, MyEvent @event)
-                {
-                    return state with { CurrentState = "Running" };
-                }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
-            }
-            """;
-
-        var (result, diagnostics) = ParsingTestHelper.ParseSource(source);
-
-        if (result is null && diagnostics.IsEmpty)
-            return true; // stub: not yet implemented
-
-        return !diagnostics.Any(d => d.Id == "SMSG011");
     }
 
     // ─── Property 29: Handler signature validation ──────────────────────────────
@@ -637,91 +516,6 @@ public class HandlerParsingProperties
             return; // stub: not yet implemented
 
         Assert.DoesNotContain(diagnostics, d => d.Id == "SMSG012");
-    }
-
-    // ─── Property 30: IStatePersistence implementation validation ────────────────
-    // Test detection of missing IStatePersistence implementation (SMSG013).
-
-    [Property]
-    public bool IStatePersistence_Missing_EmitsSMSG013(NonEmptyString classRaw)
-    {
-        var className = ToIdentifier(classRaw);
-
-        var source = $$"""
-            using System;
-            using System.Threading.Tasks;
-            using StateMachineSrcGen;
-
-            namespace TestNamespace;
-
-            public record MyState(string CurrentState);
-            public record MyEvent(string EventType) : IDispatchableEvent<string>
-            {
-                public string GetEventId() => EventType;
-            }
-
-            [State("Idle", IsInitial = true)]
-            [Trigger("Start")]
-            public static partial class {{className}} : IStateMachine<MyState, MyEvent>
-            {
-                [Transition("Idle", "Running", "Start")]
-                public static MyState HandleStart(MyState state, MyEvent @event)
-                {
-                    return state with { CurrentState = "Running" };
-                }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-            }
-            """;
-
-        var (result, diagnostics) = ParsingTestHelper.ParseSource(source);
-
-        if (result is null && diagnostics.IsEmpty)
-            return true; // stub: not yet implemented
-
-        return diagnostics.Any(d => d.Id == "SMSG013");
-    }
-
-    [Property]
-    public bool IStatePersistence_Present_NoSMSG013(NonEmptyString classRaw)
-    {
-        var className = ToIdentifier(classRaw);
-
-        var source = $$"""
-            using System;
-            using System.Threading.Tasks;
-            using StateMachineSrcGen;
-
-            namespace TestNamespace;
-
-            public record MyState(string CurrentState);
-            public record MyEvent(string EventType) : IDispatchableEvent<string>
-            {
-                public string GetEventId() => EventType;
-            }
-
-            [State("Idle", IsInitial = true)]
-            [Trigger("Start")]
-            public static partial class {{className}} : IStateMachine<MyState, MyEvent>, IStatePersistence<MyState>
-            {
-                [Transition("Idle", "Running", "Start")]
-                public static MyState HandleStart(MyState state, MyEvent @event)
-                {
-                    return state with { CurrentState = "Running" };
-                }
-
-                public Task<TransitionResult> HandleAsync(MyEvent @event) => throw new NotImplementedException();
-                public Task<MyState> LoadAsync() => throw new NotImplementedException();
-                public Task SaveAsync(MyState state) => throw new NotImplementedException();
-            }
-            """;
-
-        var (result, diagnostics) = ParsingTestHelper.ParseSource(source);
-
-        if (result is null && diagnostics.IsEmpty)
-            return true; // stub: not yet implemented
-
-        return !diagnostics.Any(d => d.Id == "SMSG013");
     }
 
     // ─── Helper: Convert NonEmptyString to valid C# identifier ──────────────────

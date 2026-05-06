@@ -573,8 +573,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -589,8 +587,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -625,8 +621,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -641,8 +635,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -672,8 +664,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -688,8 +678,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial, // missing Static
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -698,52 +686,6 @@ public class EqualityProperties
         return !a.Equals(b) && a != b;
     }
 
-    [Property]
-    public bool ParsedStateMachine_DifferentImplementsIStateMachine_AreNotEqual(NonEmptyString ns, NonEmptyString className)
-    {
-        var states = new EquatableArray<ParsedState>(
-            System.Collections.Immutable.ImmutableArray.Create(
-                new ParsedState { Name = "Idle", IsInitial = true, Location = Location.None }));
-        var triggers = new EquatableArray<ParsedTrigger>(
-            System.Collections.Immutable.ImmutableArray<ParsedTrigger>.Empty);
-        var handlers = new EquatableArray<ParsedHandler>(
-            System.Collections.Immutable.ImmutableArray<ParsedHandler>.Empty);
-
-        var a = new ParsedStateMachine
-        {
-            Namespace = ns.Get,
-            ClassName = className.Get,
-            StateTypeName = "MyState",
-            EventTypeName = "MyEvent",
-            States = states,
-            Triggers = triggers,
-            Handlers = handlers,
-            Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            Location = Location.None
-        };
-        var b = new ParsedStateMachine
-        {
-            Namespace = ns.Get,
-            ClassName = className.Get,
-            StateTypeName = "MyState",
-            EventTypeName = "MyEvent",
-            States = states,
-            Triggers = triggers,
-            Handlers = handlers,
-            Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = false,
-            ImplementsIStatePersistence = true,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            Location = Location.None
-        };
-
-        return !a.Equals(b) && a != b;
-    }
 
     [Property]
     public bool ParsedStateMachine_EqualInstances_HaveSameHashCode(
@@ -771,8 +713,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None
@@ -787,8 +727,6 @@ public class EqualityProperties
             Triggers = triggers,
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIStateMachine = true,
-            ImplementsIStatePersistence = true,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
             Location = Location.None

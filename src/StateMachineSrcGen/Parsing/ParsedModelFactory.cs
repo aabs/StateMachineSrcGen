@@ -37,8 +37,6 @@ internal static class ParsedModelFactory
                 Triggers = new EquatableArray<ParsedTrigger>(declaration.Triggers),
                 Handlers = new EquatableArray<ParsedHandler>(handlers),
                 Modifiers = declaration.Modifiers,
-                ImplementsIStateMachine = declaration.ImplementsIStateMachine,
-                ImplementsIStatePersistence = declaration.ImplementsIStatePersistence,
                 ImplementsIDispatchableEvent = declaration.ImplementsIDispatchableEvent,
                 EventIdTypeName = declaration.EventIdTypeName,
                 Location = declaration.Location
