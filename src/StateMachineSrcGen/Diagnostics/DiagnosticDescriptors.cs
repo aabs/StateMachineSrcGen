@@ -153,4 +153,104 @@ internal static class DiagnosticDescriptors
         category: Category,
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    /// <summary>SMSG018: An integer attribute argument does not correspond to a defined enum member.</summary>
+    public static readonly DiagnosticDescriptor InvalidEnumValue = new(
+        id: "SMSG018",
+        title: "Invalid enum value in attribute",
+        messageFormat: "Value {0} is not a member of enum {1}. Valid members: {2}",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG018.md");
+
+    /// <summary>SMSG019: The state type does not implement IStateMachineState&lt;TStateId&gt;.</summary>
+    public static readonly DiagnosticDescriptor MissingStateTypeConstraint = new(
+        id: "SMSG019",
+        title: "Missing type constraint",
+        messageFormat: "State type \"{0}\" does not implement IStateMachineState<{1}>",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG019.md");
+
+    /// <summary>SMSG020: A state is designated as both initial and terminal.</summary>
+    public static readonly DiagnosticDescriptor InitialAndTerminalState = new(
+        id: "SMSG020",
+        title: "State is both initial and terminal",
+        messageFormat: "State \"{0}\" is designated as both initial and terminal",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG020.md");
+
+    /// <summary>SMSG021: Multiple methods are decorated with [OnTerminal].</summary>
+    public static readonly DiagnosticDescriptor MultipleCleanupHandlers = new(
+        id: "SMSG021",
+        title: "Multiple cleanup handlers",
+        messageFormat: "Only one [OnTerminal] method is permitted per state machine class",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG021.md");
+
+    /// <summary>SMSG022: Multiple parameterless [OnEnter] methods are defined.</summary>
+    public static readonly DiagnosticDescriptor MultipleCatchAllOnEnter = new(
+        id: "SMSG022",
+        title: "Multiple catch-all entry callbacks",
+        messageFormat: "Only one parameterless [OnEnter] method is permitted",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG022.md");
+
+    /// <summary>SMSG023: Multiple targeted [OnEnter] methods reference the same state.</summary>
+    public static readonly DiagnosticDescriptor DuplicateTargetedOnEnter = new(
+        id: "SMSG023",
+        title: "Duplicate targeted entry callback",
+        messageFormat: "Multiple [OnEnter] methods target state \"{0}\"",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG023.md");
+
+    /// <summary>SMSG024: An [OnEnter] method has an invalid signature.</summary>
+    public static readonly DiagnosticDescriptor InvalidEntryCallbackSignature = new(
+        id: "SMSG024",
+        title: "Invalid entry callback signature",
+        messageFormat: "[OnEnter] method \"{0}\" must have signature: {1}",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG024.md");
+
+    /// <summary>SMSG025: An [OnTerminal] method has an invalid signature.</summary>
+    public static readonly DiagnosticDescriptor InvalidCleanupHandlerSignature = new(
+        id: "SMSG025",
+        title: "Invalid cleanup handler signature",
+        messageFormat: "[OnTerminal] method \"{0}\" must accept (TState) parameter and return Task",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG025.md");
+
+    /// <summary>SMSG026: A [Flags] enum is used as a state or event ID type.</summary>
+    public static readonly DiagnosticDescriptor FlagsEnumNotSupported = new(
+        id: "SMSG026",
+        title: "Flags enum not supported",
+        messageFormat: "Enum \"{0}\" has [Flags] attribute and cannot be used as a state/event ID type",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG026.md");
+
+    /// <summary>SMSG027: The state machine class does not declare exactly 4 type parameters.</summary>
+    public static readonly DiagnosticDescriptor InvalidTypeParameterCount = new(
+        id: "SMSG027",
+        title: "Invalid class type parameter count",
+        messageFormat: "State machine class must declare exactly 4 type parameters: TStateId, TEventId, TState, TEvent",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/StateMachineSrcGen/docs/diagnostics/SMSG027.md");
 }

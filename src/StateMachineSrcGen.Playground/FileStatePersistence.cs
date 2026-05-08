@@ -4,7 +4,7 @@ using StateMachineSrcGen;
 namespace StateMachineSrcGen.Playground;
 
 /// <summary>
-/// Persists the full OrderState object (status + items) as JSON to a file on disk.
+/// Persists the full OrderState object (state ID + items) as JSON to a file on disk.
 /// Demonstrates how to implement IStatePersistence&lt;TState&gt; for durable storage
 /// when TState is a rich object implementing IStateMachineState.
 /// </summary>

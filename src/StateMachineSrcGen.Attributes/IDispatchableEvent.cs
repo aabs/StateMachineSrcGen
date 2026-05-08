@@ -8,7 +8,6 @@ namespace StateMachineSrcGen;
 /// to obtain the identifier used in the dispatch switch statement.
 /// </summary>
 public interface IDispatchableEvent<TEventId>
-    where TEventId : IEquatable<TEventId>
 {
     /// <summary>
     /// Returns the event identifier used by the generated dispatch logic

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -8,22 +9,38 @@ using StateMachineSrcGen.Diagnostics;
 namespace StateMachineSrcGen.Parsing;
 
 /// <summary>
-/// Extracts handler methods decorated with [Transition], [Guard], or [SideEffect] attributes.
-/// Validates handler signatures and classifies handlers by kind.
+/// Extracts handler methods decorated with [Transition], [Guard], [SideEffect],
+/// [OnEnter], or [OnTerminal] attributes.
+/// Resolves integer attribute arguments back to enum member names using the
+/// state/event ID enum type symbols from DeclarationParser.
 /// </summary>
 internal static class HandlerParser
 {
     /// <summary>
-    /// Parses all handler methods from a class declaration.
-    /// Returns parsed handlers and any signature validation diagnostics.
+    /// Result of parsing handler methods from a class declaration.
     /// </summary>
-    public static (ImmutableArray<ParsedHandler> Handlers, ImmutableArray<Diagnostic> Diagnostics) Parse(
+    internal readonly struct HandlerResult
+    {
+        public ImmutableArray<ParsedHandler> Handlers { get; init; }
+        public ImmutableArray<ParsedEntryCallback> EntryCallbacks { get; init; }
+        public ParsedCleanupHandler? CleanupHandler { get; init; }
+    }
+
+    /// <summary>
+    /// Parses all handler methods from a class declaration.
+    /// Returns parsed handlers, entry callbacks, cleanup handler, and any diagnostics.
+    /// </summary>
+    public static (HandlerResult Result, ImmutableArray<Diagnostic> Diagnostics) Parse(
         ClassDeclarationSyntax classDeclaration,
         SemanticModel semanticModel,
         string stateTypeName,
-        string eventTypeName)
+        string eventTypeName,
+        INamedTypeSymbol? stateIdEnumSymbol,
+        INamedTypeSymbol? eventIdEnumSymbol)
     {
         var handlers = ImmutableArray.CreateBuilder<ParsedHandler>();
+        var entryCallbacks = ImmutableArray.CreateBuilder<ParsedEntryCallback>();
+        ParsedCleanupHandler? cleanupHandler = null;
         var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
         foreach (var member in classDeclaration.Members)
@@ -35,47 +52,106 @@ internal static class HandlerParser
             {
                 foreach (var attribute in attributeList.Attributes)
                 {
-                    var (kind, isHandlerAttribute) = ClassifyAttribute(attribute, semanticModel);
-                    if (!isHandlerAttribute)
-                        continue;
-
-                    // Extract attribute parameters
-                    var (from, to, trigger, eventId) = ExtractAttributeParameters(attribute, semanticModel, kind);
-
-                    // Extract method signature
-                    var signature = ExtractSignature(method, semanticModel);
-
-                    // Validate signature based on handler kind
-                    var signatureDiag = ValidateSignature(method, signature, kind, stateTypeName, eventTypeName);
-                    if (signatureDiag != null)
+                    // Check for [Transition], [Guard], [SideEffect]
+                    var (kind, isHandlerAttribute) = ClassifyHandlerAttribute(attribute, semanticModel);
+                    if (isHandlerAttribute)
                     {
-                        diagnostics.Add(signatureDiag);
+                        // Extract attribute parameters with int-to-enum resolution
+                        var (from, to, trigger, eventId) = ExtractHandlerAttributeParameters(
+                            attribute, semanticModel, kind, stateIdEnumSymbol, eventIdEnumSymbol, diagnostics);
+
+                        // Extract method signature
+                        var signature = ExtractSignature(method, semanticModel);
+
+                        // Validate signature based on handler kind
+                        var signatureDiag = ValidateSignature(method, signature, kind, stateTypeName, eventTypeName);
+                        if (signatureDiag != null)
+                        {
+                            diagnostics.Add(signatureDiag);
+                        }
+
+                        handlers.Add(new ParsedHandler
+                        {
+                            MethodName = method.Identifier.Text,
+                            FromState = from ?? string.Empty,
+                            ToState = to ?? string.Empty,
+                            Trigger = trigger ?? string.Empty,
+                            EventId = eventId,
+                            Kind = kind,
+                            Signature = signature,
+                            Location = Location.None
+                        });
+
+                        goto NextMethod;
                     }
 
-                    handlers.Add(new ParsedHandler
+                    // Check for [OnEnter]
+                    if (IsOnEnterAttribute(attribute, semanticModel))
                     {
-                        MethodName = method.Identifier.Text,
-                        FromState = from ?? string.Empty,
-                        ToState = to ?? string.Empty,
-                        Trigger = trigger ?? string.Empty,
-                        EventId = eventId,
-                        Kind = kind,
-                        Signature = signature,
-                        Location = Location.None
-                    });
+                        var signature = ExtractSignature(method, semanticModel);
+                        var (targetStateName, isCatchAll) = ExtractOnEnterParameters(
+                            attribute, semanticModel, stateIdEnumSymbol);
 
-                    // Only process the first handler attribute per method
-                    goto NextMethod;
+                        entryCallbacks.Add(new ParsedEntryCallback
+                        {
+                            MethodName = method.Identifier.Text,
+                            TargetStateName = targetStateName,
+                            IsCatchAll = isCatchAll,
+                            Signature = signature,
+                            Location = Location.None
+                        });
+
+                        goto NextMethod;
+                    }
+
+                    // Check for [OnTerminal]
+                    if (IsOnTerminalAttribute(attribute, semanticModel))
+                    {
+                        var signature = ExtractSignature(method, semanticModel);
+
+                        cleanupHandler = new ParsedCleanupHandler
+                        {
+                            MethodName = method.Identifier.Text,
+                            Signature = signature,
+                            Location = Location.None
+                        };
+
+                        goto NextMethod;
+                    }
                 }
             }
 
             NextMethod:;
         }
 
-        return (handlers.ToImmutable(), diagnostics.ToImmutable());
+        var result = new HandlerResult
+        {
+            Handlers = handlers.ToImmutable(),
+            EntryCallbacks = entryCallbacks.ToImmutable(),
+            CleanupHandler = cleanupHandler
+        };
+
+        return (result, diagnostics.ToImmutable());
     }
 
-    private static (HandlerKind Kind, bool IsHandlerAttribute) ClassifyAttribute(
+    /// <summary>
+    /// Legacy overload for backward compatibility with existing callers.
+    /// Delegates to the new overload with null enum symbols (falls back to string-based resolution).
+    /// </summary>
+    public static (ImmutableArray<ParsedHandler> Handlers, ImmutableArray<Diagnostic> Diagnostics) Parse(
+        ClassDeclarationSyntax classDeclaration,
+        SemanticModel semanticModel,
+        string stateTypeName,
+        string eventTypeName)
+    {
+        var (result, diagnostics) = Parse(
+            classDeclaration, semanticModel, stateTypeName, eventTypeName, null, null);
+        return (result.Handlers, diagnostics);
+    }
+
+    // ─── Attribute Classification ───────────────────────────────────────────────
+
+    private static (HandlerKind Kind, bool IsHandlerAttribute) ClassifyHandlerAttribute(
         AttributeSyntax attribute,
         SemanticModel semanticModel)
     {
@@ -115,10 +191,58 @@ internal static class HandlerParser
         };
     }
 
-    private static (string? From, string? To, string? Trigger, string? EventId) ExtractAttributeParameters(
+    private static bool IsOnEnterAttribute(AttributeSyntax attribute, SemanticModel semanticModel)
+    {
+        return IsAttributeNamed(attribute, semanticModel, "OnEnter", "OnEnterAttribute");
+    }
+
+    private static bool IsOnTerminalAttribute(AttributeSyntax attribute, SemanticModel semanticModel)
+    {
+        return IsAttributeNamed(attribute, semanticModel, "OnTerminal", "OnTerminalAttribute");
+    }
+
+    private static bool IsAttributeNamed(
         AttributeSyntax attribute,
         SemanticModel semanticModel,
-        HandlerKind kind)
+        string shortName,
+        string fullName)
+    {
+        // Try semantic resolution first
+        var symbolInfo = semanticModel.GetSymbolInfo(attribute);
+        var attrSymbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
+
+        if (attrSymbol is not null)
+        {
+            var containingType = attrSymbol.ContainingType;
+            return containingType?.Name == fullName &&
+                   containingType.ContainingNamespace?.ToString() == "StateMachineSrcGen";
+        }
+
+        // Fallback: syntax-based name matching
+        var name = attribute.Name switch
+        {
+            SimpleNameSyntax simple => simple.Identifier.Text,
+            QualifiedNameSyntax qualified => qualified.Right.Identifier.Text,
+            _ => string.Empty
+        };
+
+        return name == shortName || name == fullName;
+    }
+
+    // ─── Attribute Parameter Extraction ─────────────────────────────────────────
+
+    /// <summary>
+    /// Extracts handler attribute parameters, resolving int values to enum member names
+    /// when enum type symbols are available. Emits SMSG018 diagnostics when int values
+    /// don't resolve to valid enum members.
+    /// </summary>
+    private static (string? From, string? To, string? Trigger, string? EventId) ExtractHandlerAttributeParameters(
+        AttributeSyntax attribute,
+        SemanticModel semanticModel,
+        HandlerKind kind,
+        INamedTypeSymbol? stateIdEnumSymbol,
+        INamedTypeSymbol? eventIdEnumSymbol,
+        ImmutableArray<Diagnostic>.Builder diagnostics)
     {
         var args = attribute.ArgumentList?.Arguments;
         if (args is null || args.Value.Count < 3)
@@ -128,19 +252,68 @@ internal static class HandlerParser
         string? to = null;
         string? trigger = null;
         string? eventId = null;
+        var location = attribute.GetLocation();
 
         // First three positional arguments: from, to, trigger
-        var fromValue = semanticModel.GetConstantValue(args.Value[0].Expression);
-        if (fromValue.HasValue && fromValue.Value is string f)
-            from = f;
+        // Try int-to-enum resolution first, then fall back to string constants
+        from = ResolveAttributeArgument(args.Value[0].Expression, semanticModel, stateIdEnumSymbol);
+        to = ResolveAttributeArgument(args.Value[1].Expression, semanticModel, stateIdEnumSymbol);
+        trigger = ResolveAttributeArgument(args.Value[2].Expression, semanticModel, eventIdEnumSymbol);
 
-        var toValue = semanticModel.GetConstantValue(args.Value[1].Expression);
-        if (toValue.HasValue && toValue.Value is string t)
-            to = t;
+        // SMSG018: Emit diagnostic when int values don't resolve to enum members
+        if (from == null && stateIdEnumSymbol != null)
+        {
+            var constVal = semanticModel.GetConstantValue(args.Value[0].Expression);
+            if (constVal.HasValue && constVal.Value is int intVal)
+            {
+                var validMembers = string.Join(", ",
+                    stateIdEnumSymbol.GetMembers().OfType<IFieldSymbol>()
+                        .Where(f => f.HasConstantValue)
+                        .Select(f => f.Name));
+                diagnostics.Add(Diagnostic.Create(
+                    DiagnosticDescriptors.InvalidEnumValue,
+                    location,
+                    intVal.ToString(),
+                    stateIdEnumSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                    validMembers));
+            }
+        }
 
-        var triggerValue = semanticModel.GetConstantValue(args.Value[2].Expression);
-        if (triggerValue.HasValue && triggerValue.Value is string tr)
-            trigger = tr;
+        if (to == null && stateIdEnumSymbol != null)
+        {
+            var constVal = semanticModel.GetConstantValue(args.Value[1].Expression);
+            if (constVal.HasValue && constVal.Value is int intVal)
+            {
+                var validMembers = string.Join(", ",
+                    stateIdEnumSymbol.GetMembers().OfType<IFieldSymbol>()
+                        .Where(f => f.HasConstantValue)
+                        .Select(f => f.Name));
+                diagnostics.Add(Diagnostic.Create(
+                    DiagnosticDescriptors.InvalidEnumValue,
+                    location,
+                    intVal.ToString(),
+                    stateIdEnumSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                    validMembers));
+            }
+        }
+
+        if (trigger == null && eventIdEnumSymbol != null)
+        {
+            var constVal = semanticModel.GetConstantValue(args.Value[2].Expression);
+            if (constVal.HasValue && constVal.Value is int intVal)
+            {
+                var validMembers = string.Join(", ",
+                    eventIdEnumSymbol.GetMembers().OfType<IFieldSymbol>()
+                        .Where(f => f.HasConstantValue)
+                        .Select(f => f.Name));
+                diagnostics.Add(Diagnostic.Create(
+                    DiagnosticDescriptors.InvalidEnumValue,
+                    location,
+                    intVal.ToString(),
+                    eventIdEnumSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                    validMembers));
+            }
+        }
 
         // Check for EventId named argument (only on TransitionAttribute)
         if (kind == HandlerKind.Transition)
@@ -158,6 +331,83 @@ internal static class HandlerParser
 
         return (from, to, trigger, eventId);
     }
+
+    /// <summary>
+    /// Resolves an attribute argument expression to a string value.
+    /// If the expression evaluates to an int and an enum type symbol is available,
+    /// resolves the int back to the enum member name.
+    /// Falls back to string constant resolution.
+    /// </summary>
+    private static string? ResolveAttributeArgument(
+        ExpressionSyntax expression,
+        SemanticModel semanticModel,
+        INamedTypeSymbol? enumTypeSymbol)
+    {
+        var constantValue = semanticModel.GetConstantValue(expression);
+        if (!constantValue.HasValue)
+            return null;
+
+        // If the constant is an int and we have an enum type, resolve to member name
+        if (constantValue.Value is int intValue && enumTypeSymbol != null)
+        {
+            return ResolveEnumMemberName(enumTypeSymbol, intValue);
+        }
+
+        // If the constant is a string, use it directly (legacy path)
+        if (constantValue.Value is string strValue)
+        {
+            return strValue;
+        }
+
+        return constantValue.Value?.ToString();
+    }
+
+    /// <summary>
+    /// Resolves an integer value to an enum member name using the enum type symbol.
+    /// </summary>
+    private static string? ResolveEnumMemberName(INamedTypeSymbol enumType, int value)
+    {
+        foreach (var member in enumType.GetMembers())
+        {
+            if (member is IFieldSymbol field && field.HasConstantValue)
+            {
+                if (Convert.ToInt32(field.ConstantValue) == value)
+                    return field.Name;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Extracts [OnEnter] attribute parameters.
+    /// Returns the target state name (resolved from int) and whether it's a catch-all.
+    /// </summary>
+    private static (string? TargetStateName, bool IsCatchAll) ExtractOnEnterParameters(
+        AttributeSyntax attribute,
+        SemanticModel semanticModel,
+        INamedTypeSymbol? stateIdEnumSymbol)
+    {
+        var args = attribute.ArgumentList?.Arguments;
+
+        // Parameterless [OnEnter] → catch-all
+        if (args is null || args.Value.Count == 0)
+        {
+            return (null, true);
+        }
+
+        // [OnEnter(intValue)] → targeted
+        var constantValue = semanticModel.GetConstantValue(args.Value[0].Expression);
+        if (constantValue.HasValue && constantValue.Value is int intValue && stateIdEnumSymbol != null)
+        {
+            var stateName = ResolveEnumMemberName(stateIdEnumSymbol, intValue);
+            return (stateName, false);
+        }
+
+        return (null, true);
+    }
+
+    // ─── Signature Extraction ───────────────────────────────────────────────────
 
     private static MethodSignature ExtractSignature(
         MethodDeclarationSyntax method,
@@ -190,6 +440,8 @@ internal static class HandlerParser
             Parameters = new EquatableArray<ParameterInfo>(parameters.ToImmutable())
         };
     }
+
+    // ─── Signature Validation ───────────────────────────────────────────────────
 
     private static Diagnostic? ValidateSignature(
         MethodDeclarationSyntax method,

@@ -26,26 +26,36 @@ using StateMachineSrcGen;
 
 namespace CacheTest;
 
-public record CState(string Val);
-public record CEvent(string Id) : IDispatchableEvent<string>
+public enum CStateId
 {
-    public string GetEventId() => Id;
+    A = 0,
+    B = 1
 }
 
-[State(""A"", IsInitial = true)]
-[State(""B"")]
-[Trigger(""Go"")]
-public static partial class CacheMachine : IStateMachine<CState, CEvent>, IStatePersistence<CState>
+public enum CEventId
 {
-    [Transition(""A"", ""B"", ""Go"", EventId = ""go"")]
+    Go = 0
+}
+
+public class CState : IStateMachineState<CStateId>
+{
+    public CStateId GetStateId() => CStateId.A;
+    public string Val { get; set; } = """";
+}
+
+public class CEvent : IDispatchableEvent<CEventId>
+{
+    public CEventId GetEventId() => CEventId.Go;
+}
+
+[InitialState((int)CStateId.A)]
+public static partial class CacheMachine
+{
+    [Transition((int)CStateId.A, (int)CStateId.B, (int)CEventId.Go)]
     public static CState HandleGo(CState state, CEvent @event)
     {
-        return state with { Val = ""B"" };
+        return state;
     }
-
-    public Task<TransitionResult> HandleAsync(CEvent @event) => throw new NotImplementedException();
-    public Task<CState> LoadAsync() => throw new NotImplementedException();
-    public Task SaveAsync(CState state) => throw new NotImplementedException();
 }
 ";
 
@@ -146,34 +156,44 @@ using StateMachineSrcGen;
 
 namespace CacheTest;
 
-public record CState(string Val);
-public record CEvent(string Id) : IDispatchableEvent<string>
+public enum CStateId
 {
-    public string GetEventId() => Id;
+    A = 0,
+    B = 1,
+    C = 2
 }
 
-[State(""A"", IsInitial = true)]
-[State(""B"")]
-[State(""C"")]
-[Trigger(""Go"")]
-[Trigger(""Next"")]
-public static partial class CacheMachine : IStateMachine<CState, CEvent>, IStatePersistence<CState>
+public enum CEventId
 {
-    [Transition(""A"", ""B"", ""Go"", EventId = ""go"")]
+    Go = 0,
+    Next = 1
+}
+
+public class CState : IStateMachineState<CStateId>
+{
+    public CStateId GetStateId() => CStateId.A;
+    public string Val { get; set; } = """";
+}
+
+public class CEvent : IDispatchableEvent<CEventId>
+{
+    public CEventId GetEventId() => CEventId.Go;
+}
+
+[InitialState((int)CStateId.A)]
+public static partial class CacheMachine
+{
+    [Transition((int)CStateId.A, (int)CStateId.B, (int)CEventId.Go)]
     public static CState HandleGo(CState state, CEvent @event)
     {
-        return state with { Val = ""B"" };
+        return state;
     }
 
-    [Transition(""B"", ""C"", ""Next"", EventId = ""next"")]
+    [Transition((int)CStateId.B, (int)CStateId.C, (int)CEventId.Next)]
     public static CState HandleNext(CState state, CEvent @event)
     {
-        return state with { Val = ""C"" };
+        return state;
     }
-
-    public Task<TransitionResult> HandleAsync(CEvent @event) => throw new NotImplementedException();
-    public Task<CState> LoadAsync() => throw new NotImplementedException();
-    public Task SaveAsync(CState state) => throw new NotImplementedException();
 }
 ";
 

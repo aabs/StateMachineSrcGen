@@ -28,10 +28,12 @@ public static class AnalysisPipeline
 
             // Run all validators
             allDiagnostics.AddRange(StructureValidator.Validate(input));
+            allDiagnostics.AddRange(EnumValidator.Validate(input));
             allDiagnostics.AddRange(StateValidator.Validate(input));
             allDiagnostics.AddRange(TriggerValidator.Validate(input));
             allDiagnostics.AddRange(TransitionValidator.Validate(input));
             allDiagnostics.AddRange(SignatureValidator.Validate(input));
+            allDiagnostics.AddRange(EntryCallbackValidator.Validate(input));
 
             var diagnostics = allDiagnostics.ToImmutableArray();
 
@@ -59,13 +61,25 @@ public static class AnalysisPipeline
 
     private static ValidatedStateMachine BuildValidatedModel(ParsedStateMachine input)
     {
-        // Collect all target states from transitions to determine terminal states
-        var targetStates = new HashSet<string>(
-            input.Handlers
-                .Where(h => h.Kind == HandlerKind.Transition)
-                .Select(h => h.ToState));
+        // Build a lookup of state enum values from ParsedState/ParsedEvent
+        var stateEnumValues = new Dictionary<string, int>();
+        var stateIndex = 0;
+        foreach (var state in input.States)
+        {
+            stateEnumValues[state.Name] = stateIndex++;
+        }
+
+        var eventEnumValues = new Dictionary<string, int>();
+        foreach (var evt in input.Events)
+        {
+            eventEnumValues[evt.Name] = evt.IntValue;
+        }
+
+        // Determine terminal state names set
+        var terminalStateNames = new HashSet<string>(input.TerminalStateNames);
 
         // Collect all source states from transitions to determine terminal states
+        // (states with no outbound transitions are also considered terminal)
         var sourceStates = new HashSet<string>(
             input.Handlers
                 .Where(h => h.Kind == HandlerKind.Transition)
@@ -75,11 +89,12 @@ public static class AnalysisPipeline
         var validatedStates = input.States.Select(s => new ValidatedState
         {
             Name = s.Name,
+            EnumValue = stateEnumValues.TryGetValue(s.Name, out var ev) ? ev : 0,
             IsInitial = s.IsInitial,
-            IsTerminal = !sourceStates.Contains(s.Name)
+            IsTerminal = terminalStateNames.Contains(s.Name) || !sourceStates.Contains(s.Name)
         }).ToImmutableArray();
 
-        var initialState = validatedStates.First(s => s.IsInitial);
+        var initialState = validatedStates.FirstOrDefault(s => s.IsInitial);
 
         // Build validated transitions from transition handlers
         var transitionHandlers = input.Handlers
@@ -101,31 +116,52 @@ public static class AnalysisPipeline
             guards.TryGetValue(key, out var guardMethod);
             sideEffects.TryGetValue(key, out var sideEffectMethod);
 
+            var fromEnumValue = stateEnumValues.TryGetValue(h.FromState, out var fev) ? fev : 0;
+            var toEnumValue = stateEnumValues.TryGetValue(h.ToState, out var tev) ? tev : 0;
+            var triggerEnumValue = eventEnumValues.TryGetValue(h.Trigger, out var trv) ? trv : 0;
+
             return new ValidatedTransition
             {
                 FromState = h.FromState,
                 ToState = h.ToState,
                 Trigger = h.Trigger,
-                EventId = h.EventId ?? "",
+                FromStateEnumValue = fromEnumValue,
+                ToStateEnumValue = toEnumValue,
+                TriggerEnumValue = triggerEnumValue,
+                EventId = h.EventId ?? h.Trigger,
                 HandlerMethodName = h.MethodName,
                 GuardMethodName = guardMethod,
                 SideEffectMethodName = sideEffectMethod,
+                IsTerminal = terminalStateNames.Contains(h.ToState),
                 DeclarationOrder = index
             };
         }).ToImmutableArray();
+
+        // Build validated entry callbacks
+        var validatedEntryCallbacks = input.EntryCallbacks.Select(cb => new ValidatedEntryCallback
+        {
+            MethodName = cb.MethodName,
+            TargetStateName = cb.TargetStateName,
+            IsCatchAll = cb.IsCatchAll,
+            ReturnsTState = !cb.IsCatchAll // Targeted returns TState, catch-all returns void
+        }).ToImmutableArray();
+
+        // Get cleanup handler method name
+        var cleanupHandlerMethodName = input.CleanupHandler?.MethodName;
 
         return new ValidatedStateMachine
         {
             Namespace = input.Namespace,
             ClassName = input.ClassName,
+            StateIdEnumTypeName = input.StateIdEnumTypeName,
+            EventIdEnumTypeName = input.EventIdEnumTypeName,
             StateTypeName = input.StateTypeName,
             EventTypeName = input.EventTypeName,
-            EventIdTypeName = input.EventIdTypeName ?? "string",
-            ImplementsIStateMachineState = input.ImplementsIStateMachineState,
-            StateIdTypeName = input.StateIdTypeName,
             States = new EquatableArray<ValidatedState>(validatedStates),
             InitialState = initialState,
-            Transitions = new EquatableArray<ValidatedTransition>(validatedTransitions)
+            Transitions = new EquatableArray<ValidatedTransition>(validatedTransitions),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(validatedEntryCallbacks),
+            CleanupHandlerMethodName = cleanupHandlerMethodName
         };
     }
 }

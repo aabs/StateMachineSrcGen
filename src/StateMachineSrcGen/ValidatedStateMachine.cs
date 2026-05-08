@@ -14,20 +14,17 @@ public readonly record struct ValidatedStateMachine : IEquatable<ValidatedStateM
     /// <summary>Gets the class name of the state machine.</summary>
     public required string ClassName { get; init; }
 
-    /// <summary>Gets the state type name (TState generic parameter).</summary>
+    /// <summary>Gets the TStateId concrete enum type name.</summary>
+    public required string StateIdEnumTypeName { get; init; }
+
+    /// <summary>Gets the TEventId concrete enum type name.</summary>
+    public required string EventIdEnumTypeName { get; init; }
+
+    /// <summary>Gets the TState concrete type name.</summary>
     public required string StateTypeName { get; init; }
 
-    /// <summary>Gets the event type name (TEvent generic parameter).</summary>
+    /// <summary>Gets the TEvent concrete type name.</summary>
     public required string EventTypeName { get; init; }
-
-    /// <summary>Gets the TEventId type name from IDispatchableEvent.</summary>
-    public required string EventIdTypeName { get; init; }
-
-    /// <summary>Gets whether the state type implements IStateMachineState&lt;TStateId&gt;.</summary>
-    public required bool ImplementsIStateMachineState { get; init; }
-
-    /// <summary>Gets the TStateId type name from IStateMachineState, or null if state type is a plain string.</summary>
-    public required string? StateIdTypeName { get; init; }
 
     /// <summary>Gets the validated states.</summary>
     public required EquatableArray<ValidatedState> States { get; init; }
@@ -37,4 +34,10 @@ public readonly record struct ValidatedStateMachine : IEquatable<ValidatedStateM
 
     /// <summary>Gets the validated transitions.</summary>
     public required EquatableArray<ValidatedTransition> Transitions { get; init; }
+
+    /// <summary>Gets the validated entry callbacks.</summary>
+    public required EquatableArray<ValidatedEntryCallback> EntryCallbacks { get; init; }
+
+    /// <summary>Gets the cleanup handler method name, or null if not declared.</summary>
+    public required string? CleanupHandlerMethodName { get; init; }
 }

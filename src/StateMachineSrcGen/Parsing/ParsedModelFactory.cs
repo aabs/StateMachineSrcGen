@@ -17,6 +17,8 @@ internal static class ParsedModelFactory
     public static (ParsedStateMachine? Result, ImmutableArray<Diagnostic> Diagnostics) Assemble(
         DeclarationParser.DeclarationResult declaration,
         ImmutableArray<ParsedHandler> handlers,
+        ImmutableArray<ParsedEntryCallback> entryCallbacks,
+        ParsedCleanupHandler? cleanupHandler,
         ImmutableArray<Diagnostic> declarationDiagnostics,
         ImmutableArray<Diagnostic> handlerDiagnostics)
     {
@@ -33,14 +35,16 @@ internal static class ParsedModelFactory
                 ClassName = declaration.ClassName,
                 StateTypeName = declaration.StateTypeName,
                 EventTypeName = declaration.EventTypeName,
+                StateIdEnumTypeName = declaration.StateIdTypeName ?? "string",
+                EventIdEnumTypeName = declaration.EventIdTypeName ?? "string",
                 States = new EquatableArray<ParsedState>(declaration.States),
-                Triggers = new EquatableArray<ParsedTrigger>(declaration.Triggers),
+                Events = new EquatableArray<ParsedEvent>(declaration.Events),
                 Handlers = new EquatableArray<ParsedHandler>(handlers),
                 Modifiers = declaration.Modifiers,
-                ImplementsIDispatchableEvent = declaration.ImplementsIDispatchableEvent,
-                EventIdTypeName = declaration.EventIdTypeName,
-                ImplementsIStateMachineState = declaration.ImplementsIStateMachineState,
-                StateIdTypeName = declaration.StateIdTypeName,
+                InitialStateName = declaration.InitialStateName,
+                TerminalStateNames = new EquatableArray<string>(declaration.TerminalStateNames),
+                EntryCallbacks = new EquatableArray<ParsedEntryCallback>(entryCallbacks),
+                CleanupHandler = cleanupHandler,
                 Location = declaration.Location
             };
 
@@ -55,5 +59,23 @@ internal static class ParsedModelFactory
 
             return (null, ImmutableArray.Create(diagnostic));
         }
+    }
+
+    /// <summary>
+    /// Legacy overload for backward compatibility.
+    /// </summary>
+    public static (ParsedStateMachine? Result, ImmutableArray<Diagnostic> Diagnostics) Assemble(
+        DeclarationParser.DeclarationResult declaration,
+        ImmutableArray<ParsedHandler> handlers,
+        ImmutableArray<Diagnostic> declarationDiagnostics,
+        ImmutableArray<Diagnostic> handlerDiagnostics)
+    {
+        return Assemble(
+            declaration,
+            handlers,
+            ImmutableArray<ParsedEntryCallback>.Empty,
+            null,
+            declarationDiagnostics,
+            handlerDiagnostics);
     }
 }

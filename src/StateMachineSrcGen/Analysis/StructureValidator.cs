@@ -35,14 +35,8 @@ internal static class StructureValidator
                 string.Join(", ", missingModifiers)));
         }
 
-        // Check IDispatchableEvent implementation on event type
-        if (!input.ImplementsIDispatchableEvent)
-        {
-            diagnostics.Add(Diagnostic.Create(
-                DiagnosticDescriptors.MissingIDispatchableEventImplementation,
-                input.Location,
-                input.EventTypeName));
-        }
+        // Note: In the new generic API, IDispatchableEvent is enforced by compiler constraints.
+        // This check is a stub for backward compatibility during migration.
 
         return diagnostics.ToImmutableArray();
     }

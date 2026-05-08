@@ -34,15 +34,23 @@ public static class ParsingPipeline
             // Step 2: Parse class declaration (modifiers, interfaces, states, triggers)
             var (declaration, declarationDiagnostics) = DeclarationParser.Parse(classDeclaration, semanticModel);
 
-            // Step 3: Parse handler methods
-            var (handlers, handlerDiagnostics) = HandlerParser.Parse(
+            // Step 3: Parse handler methods with enum type symbols for int-to-enum resolution
+            var (handlerResult, handlerDiagnostics) = HandlerParser.Parse(
                 classDeclaration,
                 semanticModel,
                 declaration.StateTypeName,
-                declaration.EventTypeName);
+                declaration.EventTypeName,
+                declaration.StateIdEnumSymbol,
+                declaration.EventIdEnumSymbol);
 
             // Step 4: Assemble into ParsedStateMachine
-            return ParsedModelFactory.Assemble(declaration, handlers, declarationDiagnostics, handlerDiagnostics);
+            return ParsedModelFactory.Assemble(
+                declaration,
+                handlerResult.Handlers,
+                handlerResult.EntryCallbacks,
+                handlerResult.CleanupHandler,
+                declarationDiagnostics,
+                handlerDiagnostics);
         }
         catch (Exception ex)
         {

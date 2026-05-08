@@ -10,6 +10,9 @@ public readonly record struct ValidatedState : IEquatable<ValidatedState>
     /// <summary>Gets the name of the state.</summary>
     public required string Name { get; init; }
 
+    /// <summary>Gets the integer enum value of this state.</summary>
+    public required int EnumValue { get; init; }
+
     /// <summary>Gets whether this state is the initial state.</summary>
     public required bool IsInitial { get; init; }
 

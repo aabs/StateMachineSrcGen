@@ -33,9 +33,9 @@ public class OrchestrationOrderProperties
     [Property]
     public bool GuardGatedSelection_EvaluatesInDeclarationOrder(PositiveInt seed)
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = false };
-        var fast = new ValidatedState { Name = "Fast", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 1, IsInitial = false, IsTerminal = false };
+        var fast = new ValidatedState { Name = "Fast", EnumValue = 2, IsInitial = false, IsTerminal = true };
 
         // Two transitions from same state with same EventId but different guards
         var input = new ValidatedStateMachine
@@ -44,24 +44,27 @@ public class OrchestrationOrderProperties
             ClassName = "GuardMachine",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running, fast)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
                 new ValidatedTransition
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Go",
+                    FromStateEnumValue = 0, ToStateEnumValue = 1, TriggerEnumValue = 0,
                     EventId = "GoEvt", HandlerMethodName = "HandleGoSlow",
-                    GuardMethodName = "CanGoSlow", SideEffectMethodName = null, DeclarationOrder = 0
+                    GuardMethodName = "CanGoSlow", SideEffectMethodName = null, IsTerminal = false, DeclarationOrder = 0
                 },
                 new ValidatedTransition
                 {
                     FromState = "Idle", ToState = "Fast", Trigger = "Go",
+                    FromStateEnumValue = 0, ToStateEnumValue = 2, TriggerEnumValue = 0,
                     EventId = "GoEvt", HandlerMethodName = "HandleGoFast",
-                    GuardMethodName = "CanGoFast", SideEffectMethodName = null, DeclarationOrder = 1
-                }))
+                    GuardMethodName = "CanGoFast", SideEffectMethodName = null, IsTerminal = true, DeclarationOrder = 1
+                })),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -81,9 +84,9 @@ public class OrchestrationOrderProperties
     [Fact]
     public async Task GuardGatedSelection_FirstTrueGuardWins()
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var stateA = new ValidatedState { Name = "StateA", IsInitial = false, IsTerminal = false };
-        var stateB = new ValidatedState { Name = "StateB", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var stateA = new ValidatedState { Name = "StateA", EnumValue = 1, IsInitial = false, IsTerminal = false };
+        var stateB = new ValidatedState { Name = "StateB", EnumValue = 2, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -91,24 +94,27 @@ public class OrchestrationOrderProperties
             ClassName = "GuardWin",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, stateA, stateB)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
                 new ValidatedTransition
                 {
                     FromState = "Idle", ToState = "StateA", Trigger = "Go",
+                    FromStateEnumValue = 0, ToStateEnumValue = 1, TriggerEnumValue = 0,
                     EventId = "GoEvt", HandlerMethodName = "HandleGoA",
-                    GuardMethodName = "CanGoA", SideEffectMethodName = null, DeclarationOrder = 0
+                    GuardMethodName = "CanGoA", SideEffectMethodName = null, IsTerminal = false, DeclarationOrder = 0
                 },
                 new ValidatedTransition
                 {
                     FromState = "Idle", ToState = "StateB", Trigger = "Go",
+                    FromStateEnumValue = 0, ToStateEnumValue = 2, TriggerEnumValue = 0,
                     EventId = "GoEvt", HandlerMethodName = "HandleGoB",
-                    GuardMethodName = "CanGoB", SideEffectMethodName = null, DeclarationOrder = 1
-                }))
+                    GuardMethodName = "CanGoB", SideEffectMethodName = null, IsTerminal = true, DeclarationOrder = 1
+                })),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -201,8 +207,8 @@ namespace TestNs
     [Fact]
     public async Task GuardGatedSelection_AllGuardsFalse_ReturnsNotHandled()
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 1, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -210,18 +216,20 @@ namespace TestNs
             ClassName = "NoGuard",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
                 new ValidatedTransition
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Go",
+                    FromStateEnumValue = 0, ToStateEnumValue = 1, TriggerEnumValue = 0,
                     EventId = "GoEvt", HandlerMethodName = "HandleGo",
-                    GuardMethodName = "CanGo", SideEffectMethodName = null, DeclarationOrder = 0
-                }))
+                    GuardMethodName = "CanGo", SideEffectMethodName = null, IsTerminal = true, DeclarationOrder = 0
+                })),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -314,27 +322,29 @@ namespace TestNs
     [Property]
     public bool OrchestrationProtocol_FollowsCorrectOrder(PositiveInt seed)
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 1, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
             Namespace = "TestNs",
             ClassName = "OrderMachine",
-            StateTypeName = "string",
+            StateTypeName = "TestState",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "TestStateId",
+            EventIdEnumTypeName = "TestEventId",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
                 new ValidatedTransition
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
-                    EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = "CanStart", SideEffectMethodName = "OnStarted", DeclarationOrder = 0
-                }))
+                    FromStateEnumValue = 0, ToStateEnumValue = 1, TriggerEnumValue = 0,
+                    EventId = "Start", HandlerMethodName = "HandleStart",
+                    GuardMethodName = "CanStart", SideEffectMethodName = "OnStarted", IsTerminal = false, DeclarationOrder = 0
+                })),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -373,8 +383,8 @@ namespace TestNs
     [Property]
     public bool OrchestrationProtocol_LockReleaseInFinally(PositiveInt seed)
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 1, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -382,18 +392,20 @@ namespace TestNs
             ClassName = "FinallyMachine",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
                 new ValidatedTransition
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
+                    FromStateEnumValue = 0, ToStateEnumValue = 1, TriggerEnumValue = 0,
                     EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = null, SideEffectMethodName = null, DeclarationOrder = 0
-                }))
+                    GuardMethodName = null, SideEffectMethodName = null, IsTerminal = true, DeclarationOrder = 0
+                })),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);

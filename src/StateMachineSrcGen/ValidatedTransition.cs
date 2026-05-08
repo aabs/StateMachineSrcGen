@@ -16,6 +16,15 @@ public readonly record struct ValidatedTransition : IEquatable<ValidatedTransiti
     /// <summary>Gets the trigger name.</summary>
     public required string Trigger { get; init; }
 
+    /// <summary>Gets the integer enum value of the source state.</summary>
+    public required int FromStateEnumValue { get; init; }
+
+    /// <summary>Gets the integer enum value of the target state.</summary>
+    public required int ToStateEnumValue { get; init; }
+
+    /// <summary>Gets the integer enum value of the trigger/event.</summary>
+    public required int TriggerEnumValue { get; init; }
+
     /// <summary>Gets the event ID value this transition responds to.</summary>
     public required string EventId { get; init; }
 
@@ -27,6 +36,9 @@ public readonly record struct ValidatedTransition : IEquatable<ValidatedTransiti
 
     /// <summary>Gets the side effect method name, or null if no side effect.</summary>
     public required string? SideEffectMethodName { get; init; }
+
+    /// <summary>Gets whether this transition targets a terminal state.</summary>
+    public required bool IsTerminal { get; init; }
 
     /// <summary>Gets the declaration order for guard evaluation priority.</summary>
     public required int DeclarationOrder { get; init; }

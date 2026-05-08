@@ -9,10 +9,9 @@ namespace StateMachineSrcGen;
 /// </summary>
 /// <typeparam name="TStateId">
 /// The type of the state identifier used for transition comparisons.
-/// Must implement <see cref="IEquatable{T}"/> for reliable equality checks.
+/// Typically an enum type constrained with struct, Enum on the state machine class.
 /// </typeparam>
 public interface IStateMachineState<TStateId>
-    where TStateId : IEquatable<TStateId>
 {
     /// <summary>
     /// Returns the state identifier used by the generated dispatch logic

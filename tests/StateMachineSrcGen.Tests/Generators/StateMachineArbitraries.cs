@@ -285,11 +285,13 @@ public static class StateMachineArbitraries
                       ClassName = className,
                       StateTypeName = stateType,
                       EventTypeName = eventType,
+                      StateIdEnumTypeName = "string",
+                      EventIdEnumTypeName = "string",
                       States = new EquatableArray<ParsedState>(ImmutableArray.Create(
                           new ParsedState { Name = s1, IsInitial = true, Location = Location.None },
                           new ParsedState { Name = s2, IsInitial = false, Location = Location.None })),
-                      Triggers = new EquatableArray<ParsedTrigger>(ImmutableArray.Create(
-                          new ParsedTrigger { Name = triggerName, Location = Location.None })),
+                      Events = new EquatableArray<ParsedEvent>(ImmutableArray.Create(
+                          new ParsedEvent { Name = triggerName, IntValue = 0, Location = Location.None })),
                       Handlers = new EquatableArray<ParsedHandler>(ImmutableArray.Create(
                           new ParsedHandler
                           {
@@ -311,10 +313,10 @@ public static class StateMachineArbitraries
                               Location = Location.None
                           })),
                       Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-                      ImplementsIDispatchableEvent = true,
-                      EventIdTypeName = "string",
-                      ImplementsIStateMachineState = false,
-                      StateIdTypeName = null,
+                      InitialStateName = s1,
+                      TerminalStateNames = new EquatableArray<string>(ImmutableArray<string>.Empty),
+                      EntryCallbacks = new EquatableArray<ParsedEntryCallback>(ImmutableArray<ParsedEntryCallback>.Empty),
+                      CleanupHandler = null,
                       Location = Location.None
                   };
         return gen.ToArbitrary();
@@ -401,14 +403,17 @@ public static class StateMachineArbitraries
             ClassName = "InvalidMachine",
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ParsedState>(states.ToImmutableArray()),
-            Triggers = new EquatableArray<ParsedTrigger>(triggers.ToImmutableArray()),
+            Events = new EquatableArray<ParsedEvent>(ImmutableArray.Create(
+                new ParsedEvent { Name = "Go", IntValue = 0, Location = Location.None })),
             Handlers = new EquatableArray<ParsedHandler>(handlers.ToImmutableArray()),
             Modifiers = missingModifiers ? ClassModifiers.Public : (ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static),
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = noInitialState ? null : "A",
+            TerminalStateNames = new EquatableArray<string>(ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
             Location = Location.None
         };
     }
@@ -429,17 +434,16 @@ public static class StateMachineArbitraries
                   from trigger in GenValidIdentifier()
                   let s1 = state1 == state2 ? state1 + "X" : state1
                   let s2 = state1 == state2 ? state2 + "Y" : state2
-                  let initial = new ValidatedState { Name = s1, IsInitial = true, IsTerminal = false }
-                  let terminal = new ValidatedState { Name = s2, IsInitial = false, IsTerminal = true }
+                  let initial = new ValidatedState { Name = s1, EnumValue = 0, IsInitial = true, IsTerminal = false }
+                  let terminal = new ValidatedState { Name = s2, EnumValue = 1, IsInitial = false, IsTerminal = true }
                   select new ValidatedStateMachine
                   {
                       Namespace = ns,
                       ClassName = className,
                       StateTypeName = stateType,
                       EventTypeName = eventType,
-                      EventIdTypeName = "string",
-                      ImplementsIStateMachineState = false,
-                      StateIdTypeName = null,
+                      StateIdEnumTypeName = "string",
+                      EventIdEnumTypeName = "string",
                       States = new EquatableArray<ValidatedState>(ImmutableArray.Create(initial, terminal)),
                       InitialState = initial,
                       Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -448,12 +452,18 @@ public static class StateMachineArbitraries
                               FromState = s1,
                               ToState = s2,
                               Trigger = trigger,
+                              FromStateEnumValue = 0,
+                              ToStateEnumValue = 1,
+                              TriggerEnumValue = 0,
                               EventId = trigger.ToLowerInvariant(),
                               HandlerMethodName = $"Handle{trigger}",
                               GuardMethodName = null,
                               SideEffectMethodName = null,
+                              IsTerminal = true,
                               DeclarationOrder = 0
-                          }))
+                          })),
+                      EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+                      CleanupHandlerMethodName = null
                   };
         return gen.ToArbitrary();
     }
@@ -470,17 +480,16 @@ public static class StateMachineArbitraries
                   from trigger in GenValidIdentifier()
                   let s1 = state1 == state2 ? state1 + "X" : state1
                   let s2 = state1 == state2 ? state2 + "Y" : state2
-                  let initial = new ValidatedState { Name = s1, IsInitial = true, IsTerminal = false }
-                  let terminal = new ValidatedState { Name = s2, IsInitial = false, IsTerminal = true }
+                  let initial = new ValidatedState { Name = s1, EnumValue = 0, IsInitial = true, IsTerminal = false }
+                  let terminal = new ValidatedState { Name = s2, EnumValue = 1, IsInitial = false, IsTerminal = true }
                   select new ValidatedStateMachine
                   {
                       Namespace = ns,
                       ClassName = className,
                       StateTypeName = "string",
                       EventTypeName = "TestEvent",
-                      EventIdTypeName = "string",
-                      ImplementsIStateMachineState = false,
-                      StateIdTypeName = null,
+                      StateIdEnumTypeName = "string",
+                      EventIdEnumTypeName = "string",
                       States = new EquatableArray<ValidatedState>(ImmutableArray.Create(initial, terminal)),
                       InitialState = initial,
                       Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -489,12 +498,18 @@ public static class StateMachineArbitraries
                               FromState = s1,
                               ToState = s2,
                               Trigger = trigger,
+                              FromStateEnumValue = 0,
+                              ToStateEnumValue = 1,
+                              TriggerEnumValue = 0,
                               EventId = trigger.ToLowerInvariant(),
                               HandlerMethodName = $"Handle{trigger}",
                               GuardMethodName = $"Can{trigger}",
                               SideEffectMethodName = $"On{trigger}",
+                              IsTerminal = true,
                               DeclarationOrder = 0
-                          }))
+                          })),
+                      EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+                      CleanupHandlerMethodName = null
                   };
         return gen.ToArbitrary();
     }

@@ -327,8 +327,8 @@ public class EqualityProperties
     [Property]
     public bool ValidatedState_IdenticalInstances_AreEqual(NonEmptyString name, bool isInitial, bool isTerminal)
     {
-        var a = new ValidatedState { Name = name.Get, IsInitial = isInitial, IsTerminal = isTerminal };
-        var b = new ValidatedState { Name = name.Get, IsInitial = isInitial, IsTerminal = isTerminal };
+        var a = new ValidatedState { Name = name.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = isTerminal };
+        var b = new ValidatedState { Name = name.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = isTerminal };
 
         return a.Equals(b) && b.Equals(a) && a == b;
     }
@@ -338,8 +338,8 @@ public class EqualityProperties
     {
         if (name1.Get == name2.Get) return true;
 
-        var a = new ValidatedState { Name = name1.Get, IsInitial = isInitial, IsTerminal = isTerminal };
-        var b = new ValidatedState { Name = name2.Get, IsInitial = isInitial, IsTerminal = isTerminal };
+        var a = new ValidatedState { Name = name1.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = isTerminal };
+        var b = new ValidatedState { Name = name2.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = isTerminal };
 
         return !a.Equals(b) && a != b;
     }
@@ -347,8 +347,8 @@ public class EqualityProperties
     [Property]
     public bool ValidatedState_DifferentIsTerminal_AreNotEqual(NonEmptyString name, bool isInitial)
     {
-        var a = new ValidatedState { Name = name.Get, IsInitial = isInitial, IsTerminal = true };
-        var b = new ValidatedState { Name = name.Get, IsInitial = isInitial, IsTerminal = false };
+        var a = new ValidatedState { Name = name.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = true };
+        var b = new ValidatedState { Name = name.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = false };
 
         return !a.Equals(b) && a != b;
     }
@@ -356,8 +356,8 @@ public class EqualityProperties
     [Property]
     public bool ValidatedState_EqualInstances_HaveSameHashCode(NonEmptyString name, bool isInitial, bool isTerminal)
     {
-        var a = new ValidatedState { Name = name.Get, IsInitial = isInitial, IsTerminal = isTerminal };
-        var b = new ValidatedState { Name = name.Get, IsInitial = isInitial, IsTerminal = isTerminal };
+        var a = new ValidatedState { Name = name.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = isTerminal };
+        var b = new ValidatedState { Name = name.Get, EnumValue = 0, IsInitial = isInitial, IsTerminal = isTerminal };
 
         return a.GetHashCode() == b.GetHashCode();
     }
@@ -380,8 +380,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = declarationOrder
         };
         var b = new ValidatedTransition
@@ -391,8 +395,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = declarationOrder
         };
 
@@ -418,8 +426,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = declarationOrder
         };
         var b = new ValidatedTransition
@@ -429,8 +441,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = declarationOrder
         };
 
@@ -456,8 +472,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = order1
         };
         var b = new ValidatedTransition
@@ -467,8 +487,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = order2
         };
 
@@ -491,8 +515,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = 0
         };
         var b = new ValidatedTransition
@@ -502,8 +530,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = guardName.Get,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = 0
         };
 
@@ -526,8 +558,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = declarationOrder
         };
         var b = new ValidatedTransition
@@ -537,8 +573,12 @@ public class EqualityProperties
             Trigger = trigger.Get,
             EventId = eventId.Get,
             HandlerMethodName = handlerMethodName.Get,
+            FromStateEnumValue = 0,
+            ToStateEnumValue = 0,
+            TriggerEnumValue = 0,
             GuardMethodName = null,
             SideEffectMethodName = null,
+            IsTerminal = false,
             DeclarationOrder = declarationOrder
         };
 
@@ -570,13 +610,15 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -586,13 +628,15 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
 
@@ -622,13 +666,15 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -638,13 +684,15 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
 
@@ -669,13 +717,15 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -685,13 +735,15 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial, // missing Static
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
 
@@ -722,13 +774,15 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -738,13 +792,15 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             States = states,
-            Triggers = triggers,
+            Events = new EquatableArray<ParsedEvent>(System.Collections.Immutable.ImmutableArray<ParsedEvent>.Empty),
             Handlers = handlers,
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(System.Collections.Immutable.ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(System.Collections.Immutable.ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             Location = Location.None
         };
 
@@ -761,7 +817,7 @@ public class EqualityProperties
         NonEmptyString eventTypeName,
         NonEmptyString eventIdTypeName)
     {
-        var initialState = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
+        var initialState = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
         var states = new EquatableArray<ValidatedState>(
             System.Collections.Immutable.ImmutableArray.Create(initialState));
         var transitions = new EquatableArray<ValidatedTransition>(
@@ -773,12 +829,13 @@ public class EqualityProperties
             ClassName = className.Get,
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
-            EventIdTypeName = eventIdTypeName.Get,
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = eventIdTypeName.Get,
             States = states,
             InitialState = initialState,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
         var b = new ValidatedStateMachine
         {
@@ -786,12 +843,13 @@ public class EqualityProperties
             ClassName = className.Get,
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
-            EventIdTypeName = eventIdTypeName.Get,
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = eventIdTypeName.Get,
             States = states,
             InitialState = initialState,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         return a.Equals(b) && b.Equals(a) && a == b;
@@ -805,7 +863,7 @@ public class EqualityProperties
     {
         if (className1.Get == className2.Get) return true;
 
-        var initialState = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
+        var initialState = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
         var states = new EquatableArray<ValidatedState>(
             System.Collections.Immutable.ImmutableArray.Create(initialState));
         var transitions = new EquatableArray<ValidatedTransition>(
@@ -817,12 +875,13 @@ public class EqualityProperties
             ClassName = className1.Get,
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = states,
             InitialState = initialState,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
         var b = new ValidatedStateMachine
         {
@@ -830,12 +889,13 @@ public class EqualityProperties
             ClassName = className2.Get,
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = states,
             InitialState = initialState,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         return !a.Equals(b) && a != b;
@@ -850,8 +910,8 @@ public class EqualityProperties
     {
         if (stateName1.Get == stateName2.Get) return true;
 
-        var initialState1 = new ValidatedState { Name = stateName1.Get, IsInitial = true, IsTerminal = false };
-        var initialState2 = new ValidatedState { Name = stateName2.Get, IsInitial = true, IsTerminal = false };
+        var initialState1 = new ValidatedState { Name = stateName1.Get, EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var initialState2 = new ValidatedState { Name = stateName2.Get, EnumValue = 0, IsInitial = true, IsTerminal = false };
         var states1 = new EquatableArray<ValidatedState>(
             System.Collections.Immutable.ImmutableArray.Create(initialState1));
         var states2 = new EquatableArray<ValidatedState>(
@@ -865,12 +925,13 @@ public class EqualityProperties
             ClassName = className.Get,
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = states1,
             InitialState = initialState1,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
         var b = new ValidatedStateMachine
         {
@@ -878,12 +939,13 @@ public class EqualityProperties
             ClassName = className.Get,
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = states2,
             InitialState = initialState2,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         return !a.Equals(b) && a != b;
@@ -897,7 +959,7 @@ public class EqualityProperties
         NonEmptyString eventTypeName,
         NonEmptyString eventIdTypeName)
     {
-        var initialState = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
+        var initialState = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
         var states = new EquatableArray<ValidatedState>(
             System.Collections.Immutable.ImmutableArray.Create(initialState));
         var transitions = new EquatableArray<ValidatedTransition>(
@@ -909,12 +971,13 @@ public class EqualityProperties
             ClassName = className.Get,
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
-            EventIdTypeName = eventIdTypeName.Get,
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = eventIdTypeName.Get,
             States = states,
             InitialState = initialState,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
         var b = new ValidatedStateMachine
         {
@@ -922,14 +985,19 @@ public class EqualityProperties
             ClassName = className.Get,
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
-            EventIdTypeName = eventIdTypeName.Get,
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = eventIdTypeName.Get,
             States = states,
             InitialState = initialState,
-            Transitions = transitions
+            Transitions = transitions,
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
 
         return a.GetHashCode() == b.GetHashCode();
     }
 }
+
+
+
+

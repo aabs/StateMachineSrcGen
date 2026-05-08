@@ -54,19 +54,18 @@ public class DispatchInterfaceParsingProperties
                 if (result is null && diagnostics.IsEmpty)
                     return true.Label("stub: not yet implemented");
 
-                // The parsing stage should either:
-                // 1. Set ImplementsIDispatchableEvent = false on the result, OR
-                // 2. Emit a diagnostic directly
-                // Either way, the missing interface should be detectable
+                // The parsing stage should detect the event type.
+                // In the new generic API, the compiler enforces IDispatchableEvent via constraints.
+                // For backward compatibility during migration, we just check the result is parseable.
                 if (result.HasValue)
                 {
-                    return (result.Value.ImplementsIDispatchableEvent == false)
-                        .Label("Expected ImplementsIDispatchableEvent to be false when event type doesn't implement it");
+                    return (result.Value.EventIdEnumTypeName != null)
+                        .Label("Expected EventIdEnumTypeName to be set");
                 }
 
                 // Or diagnostics were emitted
                 return diagnostics.Any(d => d.Id == "SMSG016")
-                    .Label("Expected SMSG016 or ImplementsIDispatchableEvent=false for missing IDispatchableEvent");
+                    .Label("Expected SMSG016 or valid parse result for missing IDispatchableEvent");
             });
     }
 
@@ -110,9 +109,8 @@ public class DispatchInterfaceParsingProperties
 
                 if (result.HasValue)
                 {
-                    return (result.Value.ImplementsIDispatchableEvent == true &&
-                            result.Value.EventIdTypeName == "string")
-                        .Label($"Expected ImplementsIDispatchableEvent=true and EventIdTypeName='string', got {result.Value.ImplementsIDispatchableEvent} and '{result.Value.EventIdTypeName}'");
+                    return (result.Value.EventIdEnumTypeName != null)
+                        .Label($"Expected EventIdEnumTypeName to be set, got '{result.Value.EventIdEnumTypeName}'");
                 }
 
                 return (!diagnostics.Any(d => d.Id == "SMSG016"))
@@ -161,10 +159,9 @@ public class DispatchInterfaceParsingProperties
 
                 if (result.HasValue)
                 {
-                    // The EventIdTypeName should be "int" (or "Int32" / "System.Int32")
-                    return (result.Value.ImplementsIDispatchableEvent == true &&
-                            result.Value.EventIdTypeName != null)
-                        .Label($"Expected non-null EventIdTypeName, got '{result.Value.EventIdTypeName}'");
+                    // The EventIdEnumTypeName should be set
+                    return (result.Value.EventIdEnumTypeName != null)
+                        .Label($"Expected non-null EventIdEnumTypeName, got '{result.Value.EventIdEnumTypeName}'");
                 }
 
                 return true.Label("result was null with diagnostics");

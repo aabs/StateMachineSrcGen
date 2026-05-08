@@ -15,36 +15,42 @@ public readonly record struct ParsedStateMachine : IEquatable<ParsedStateMachine
     /// <summary>Gets the class name of the state machine.</summary>
     public required string ClassName { get; init; }
 
-    /// <summary>Gets the state type name (TState generic parameter).</summary>
+    /// <summary>Gets the class modifiers (public, partial, static).</summary>
+    public required ClassModifiers Modifiers { get; init; }
+
+    /// <summary>Gets the source location of the class declaration.</summary>
+    public required Location Location { get; init; }
+
+    /// <summary>Gets the TStateId concrete enum type name.</summary>
+    public required string StateIdEnumTypeName { get; init; }
+
+    /// <summary>Gets the TEventId concrete enum type name.</summary>
+    public required string EventIdEnumTypeName { get; init; }
+
+    /// <summary>Gets the TState concrete type name.</summary>
     public required string StateTypeName { get; init; }
 
-    /// <summary>Gets the event type name (TEvent generic parameter).</summary>
+    /// <summary>Gets the TEvent concrete type name.</summary>
     public required string EventTypeName { get; init; }
 
-    /// <summary>Gets the declared states.</summary>
+    /// <summary>Gets the states derived from TStateId enum members.</summary>
     public required EquatableArray<ParsedState> States { get; init; }
 
-    /// <summary>Gets the declared triggers.</summary>
-    public required EquatableArray<ParsedTrigger> Triggers { get; init; }
+    /// <summary>Gets the events derived from TEventId enum members.</summary>
+    public required EquatableArray<ParsedEvent> Events { get; init; }
 
     /// <summary>Gets the declared handlers.</summary>
     public required EquatableArray<ParsedHandler> Handlers { get; init; }
 
-    /// <summary>Gets the class modifiers (public, partial, static).</summary>
-    public required ClassModifiers Modifiers { get; init; }
+    /// <summary>Gets the initial state name, or null if not declared.</summary>
+    public required string? InitialStateName { get; init; }
 
-    /// <summary>Gets whether the event type implements IDispatchableEvent.</summary>
-    public required bool ImplementsIDispatchableEvent { get; init; }
+    /// <summary>Gets the terminal state names.</summary>
+    public required EquatableArray<string> TerminalStateNames { get; init; }
 
-    /// <summary>Gets the TEventId type name from IDispatchableEvent, or null if not implemented.</summary>
-    public required string? EventIdTypeName { get; init; }
+    /// <summary>Gets the parsed entry callbacks.</summary>
+    public required EquatableArray<ParsedEntryCallback> EntryCallbacks { get; init; }
 
-    /// <summary>Gets whether the state type implements IStateMachineState.</summary>
-    public required bool ImplementsIStateMachineState { get; init; }
-
-    /// <summary>Gets the TStateId type name from IStateMachineState, or null if not implemented.</summary>
-    public required string? StateIdTypeName { get; init; }
-
-    /// <summary>Gets the source location of the class declaration.</summary>
-    public required Location Location { get; init; }
+    /// <summary>Gets the parsed cleanup handler, or null if not declared.</summary>
+    public required ParsedCleanupHandler? CleanupHandler { get; init; }
 }

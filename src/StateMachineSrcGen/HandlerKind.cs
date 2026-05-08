@@ -12,5 +12,11 @@ public enum HandlerKind
     Guard,
 
     /// <summary>A side effect that runs after a successful transition.</summary>
-    SideEffect
+    SideEffect,
+
+    /// <summary>A state-entry callback invoked when entering a state.</summary>
+    EntryCallback,
+
+    /// <summary>A cleanup handler invoked when reaching a terminal state.</summary>
+    Cleanup
 }

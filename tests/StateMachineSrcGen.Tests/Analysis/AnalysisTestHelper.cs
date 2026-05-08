@@ -27,18 +27,20 @@ internal static class AnalysisTestHelper
             ClassName = className,
             StateTypeName = stateType,
             EventTypeName = eventType,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ParsedState>(ImmutableArray.Create(
                 new ParsedState { Name = "Idle", IsInitial = true, Location = Location.None },
                 new ParsedState { Name = "Running", IsInitial = false, Location = Location.None })),
-            Triggers = new EquatableArray<ParsedTrigger>(ImmutableArray.Create(
-                new ParsedTrigger { Name = "Start", Location = Location.None })),
+            Events = new EquatableArray<ParsedEvent>(ImmutableArray.Create(
+                new ParsedEvent { Name = "Start", IntValue = 0, Location = Location.None })),
             Handlers = new EquatableArray<ParsedHandler>(ImmutableArray.Create(
                 CreateTransitionHandler("HandleStart", "Idle", "Running", "Start", stateType, eventType))),
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
-            ImplementsIDispatchableEvent = true,
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = "Idle",
+            TerminalStateNames = new EquatableArray<string>(ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
             Location = Location.None
         };
     }
@@ -62,14 +64,16 @@ internal static class AnalysisTestHelper
             ClassName = "TestMachine",
             StateTypeName = stateType,
             EventTypeName = eventType,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = eventIdTypeName ?? "string",
             States = new EquatableArray<ParsedState>(states.ToImmutableArray()),
-            Triggers = new EquatableArray<ParsedTrigger>(triggers.ToImmutableArray()),
+            Events = new EquatableArray<ParsedEvent>(triggers.Select((t, i) => new ParsedEvent { Name = t.Name, IntValue = i, Location = Location.None }).ToImmutableArray()),
             Handlers = new EquatableArray<ParsedHandler>(handlers.ToImmutableArray()),
             Modifiers = modifiers,
-            ImplementsIDispatchableEvent = implementsIDispatchableEvent,
-            EventIdTypeName = eventIdTypeName,
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            InitialStateName = states.FirstOrDefault(s => s.IsInitial).Name,
+            TerminalStateNames = new EquatableArray<string>(ImmutableArray<string>.Empty),
+            EntryCallbacks = new EquatableArray<ParsedEntryCallback>(ImmutableArray<ParsedEntryCallback>.Empty),
+            CleanupHandler = null,
             Location = Location.None
         };
     }

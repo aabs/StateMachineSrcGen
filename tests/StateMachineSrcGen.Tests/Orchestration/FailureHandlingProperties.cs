@@ -37,8 +37,8 @@ public class FailureHandlingProperties
     [Property]
     public bool ActionFailure_PreventsSave_InGeneratedCode(PositiveInt seed)
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 0, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -46,9 +46,8 @@ public class FailureHandlingProperties
             ClassName = "FailAction",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -56,8 +55,10 @@ public class FailureHandlingProperties
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
                     EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = null, SideEffectMethodName = "OnStarted", DeclarationOrder = 0
-                }))
+                    GuardMethodName = null, SideEffectMethodName = "OnStarted", FromStateEnumValue = 0, ToStateEnumValue = 0, TriggerEnumValue = 0, IsTerminal = false, DeclarationOrder = 0
+                })),
+        EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+        CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -77,8 +78,8 @@ public class FailureHandlingProperties
     [Fact]
     public async Task ActionFailure_PreventsSave_AtRuntime()
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 0, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -86,9 +87,8 @@ public class FailureHandlingProperties
             ClassName = "FailAct",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -96,8 +96,10 @@ public class FailureHandlingProperties
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
                     EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = null, SideEffectMethodName = null, DeclarationOrder = 0
-                }))
+                    GuardMethodName = null, SideEffectMethodName = null, FromStateEnumValue = 0, ToStateEnumValue = 0, TriggerEnumValue = 0, IsTerminal = false, DeclarationOrder = 0
+                })),
+        EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+        CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -186,8 +188,8 @@ namespace TestNs
     [Property]
     public bool SideEffectFailure_DoesNotRollBack_SaveAlreadyCompleted(PositiveInt seed)
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 0, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -195,9 +197,8 @@ namespace TestNs
             ClassName = "SideEffFail",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -205,8 +206,10 @@ namespace TestNs
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
                     EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = null, SideEffectMethodName = "OnStarted", DeclarationOrder = 0
-                }))
+                    GuardMethodName = null, SideEffectMethodName = "OnStarted", FromStateEnumValue = 0, ToStateEnumValue = 0, TriggerEnumValue = 0, IsTerminal = false, DeclarationOrder = 0
+                })),
+        EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+        CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -228,8 +231,8 @@ namespace TestNs
     [Property]
     public bool StateRoundTrip_HandlerReceivesLoadedState_SaveReceivesReturnedState(PositiveInt seed)
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 0, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -237,9 +240,8 @@ namespace TestNs
             ClassName = "RoundTrip",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -247,8 +249,10 @@ namespace TestNs
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
                     EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = null, SideEffectMethodName = null, DeclarationOrder = 0
-                }))
+                    GuardMethodName = null, SideEffectMethodName = null, FromStateEnumValue = 0, ToStateEnumValue = 0, TriggerEnumValue = 0, IsTerminal = false, DeclarationOrder = 0
+                })),
+        EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+        CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -272,8 +276,8 @@ namespace TestNs
     [Property]
     public bool LoadFailure_ShortCircuits_SkipsHandlerAndSave(PositiveInt seed)
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 0, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -281,9 +285,8 @@ namespace TestNs
             ClassName = "LoadFail",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -291,8 +294,10 @@ namespace TestNs
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
                     EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = null, SideEffectMethodName = null, DeclarationOrder = 0
-                }))
+                    GuardMethodName = null, SideEffectMethodName = null, FromStateEnumValue = 0, ToStateEnumValue = 0, TriggerEnumValue = 0, IsTerminal = false, DeclarationOrder = 0
+                })),
+        EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+        CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -322,8 +327,8 @@ namespace TestNs
     [Fact]
     public async Task LoadFailure_ShortCircuits_AtRuntime()
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 0, IsInitial = false, IsTerminal = true };
 
         var input = new ValidatedStateMachine
         {
@@ -331,9 +336,8 @@ namespace TestNs
             ClassName = "LoadErr",
             StateTypeName = "string",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "string",
+            EventIdEnumTypeName = "string",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -341,8 +345,10 @@ namespace TestNs
                 {
                     FromState = "Idle", ToState = "Running", Trigger = "Start",
                     EventId = "StartEvt", HandlerMethodName = "HandleStart",
-                    GuardMethodName = null, SideEffectMethodName = null, DeclarationOrder = 0
-                }))
+                    GuardMethodName = null, SideEffectMethodName = null, FromStateEnumValue = 0, ToStateEnumValue = 0, TriggerEnumValue = 0, IsTerminal = false, DeclarationOrder = 0
+                })),
+        EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(System.Collections.Immutable.ImmutableArray<ValidatedEntryCallback>.Empty),
+        CleanupHandlerMethodName = null
         };
 
         var (source, _) = GenerationPipeline.Generate(input);
@@ -423,3 +429,5 @@ namespace TestNs
         return Assembly.Load(ms.ToArray());
     }
 }
+
+

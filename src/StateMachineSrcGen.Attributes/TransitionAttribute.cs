@@ -6,28 +6,22 @@ namespace StateMachineSrcGen;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public sealed class TransitionAttribute : Attribute
 {
-    /// <summary>Gets the source state name for this transition.</summary>
-    public string From { get; }
+    /// <summary>Gets the source state enum value for this transition.</summary>
+    public int From { get; }
 
-    /// <summary>Gets the target state name for this transition.</summary>
-    public string To { get; }
+    /// <summary>Gets the target state enum value for this transition.</summary>
+    public int To { get; }
 
-    /// <summary>Gets the trigger name that activates this transition.</summary>
-    public string Trigger { get; }
-
-    /// <summary>
-    /// The event ID value that this handler responds to.
-    /// Used by the generated dispatch switch to route events to the correct handler.
-    /// </summary>
-    public object? EventId { get; set; }
+    /// <summary>Gets the trigger enum value that activates this transition.</summary>
+    public int Trigger { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TransitionAttribute"/> class.
     /// </summary>
-    /// <param name="from">The source state name.</param>
-    /// <param name="to">The target state name.</param>
-    /// <param name="trigger">The trigger name that activates this transition.</param>
-    public TransitionAttribute(string from, string to, string trigger)
+    /// <param name="from">The source state enum value (cast from state ID enum).</param>
+    /// <param name="to">The target state enum value (cast from state ID enum).</param>
+    /// <param name="trigger">The trigger enum value (cast from event ID enum).</param>
+    public TransitionAttribute(int from, int to, int trigger)
     {
         From = from;
         To = to;

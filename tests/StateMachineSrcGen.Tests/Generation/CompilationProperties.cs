@@ -1,6 +1,6 @@
-// Feature: state-machine-source-generator, Property 17: Generated code compiles without warnings
+// Feature: generic-state-machine-api, Property 18: Generated code compiles without errors
 // Feature: state-machine-source-generator, Property 26: Full pipeline round-trip compilation
-// **Validates: Requirements 7.1, 11.4**
+// **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5, 7.6**
 
 using System;
 using System.Collections.Immutable;
@@ -15,8 +15,8 @@ using StateMachineSrcGen.Generation;
 namespace StateMachineSrcGen.Tests.Generation;
 
 /// <summary>
-/// Property 17: Generated code compiles without warnings
-/// For any valid ValidatedStateMachine, generated C# compiles without errors or warnings
+/// Property 18: Generated code compiles without errors
+/// For any valid ValidatedStateMachine, generated C# compiles without errors
 /// under nullable reference types context.
 ///
 /// Property 26: Full pipeline round-trip compilation
@@ -37,9 +37,7 @@ public class CompilationProperties
         if (source == null)
             return false;
 
-        var userCode = GetUserCodeForMachine(className, ns, "TestEvent", "string",
-            new[] { ("HandleStart", "string", false, false) });
-
+        var userCode = GenerationTestHelper.BuildEnumSupportCode(input);
         var compilationDiags = GenerationTestHelper.GetCompilationDiagnostics(source, userCode);
 
         return !compilationDiags.Any(d => d.Severity == DiagnosticSeverity.Error);
@@ -58,15 +56,7 @@ public class CompilationProperties
         if (source == null)
             return false;
 
-        var userCode = GetUserCodeForMachine(className, ns, "TestEvent", "string",
-            new[]
-            {
-                ("HandleStart", "string", false, false),
-                ("CanStart", "bool", true, false),
-                ("OnStarted", "void", false, true),
-                ("HandleStop", "string", false, false)
-            });
-
+        var userCode = GenerationTestHelper.BuildEnumSupportCode(input);
         var compilationDiags = GenerationTestHelper.GetCompilationDiagnostics(source, userCode);
 
         return !compilationDiags.Any(d => d.Severity == DiagnosticSeverity.Error);
@@ -85,9 +75,7 @@ public class CompilationProperties
         if (source == null)
             return false;
 
-        var userCode = GetUserCodeForMachine(className, ns, "TestEvent", "string",
-            new[] { ("HandleStart", "string", false, false) });
-
+        var userCode = GenerationTestHelper.BuildEnumSupportCode(input);
         var compilation = GenerationTestHelper.CompileGeneratedSource(source, userCode);
         using var ms = new System.IO.MemoryStream();
         var emitResult = compilation.Emit(ms);
@@ -108,9 +96,7 @@ public class CompilationProperties
         if (source == null)
             return false;
 
-        var userCode = GetUserCodeForMachine(className, ns, "TestEvent", "string",
-            new[] { ("HandleStart", "string", false, false) });
-
+        var userCode = GenerationTestHelper.BuildEnumSupportCode(input);
         var compilationDiags = GenerationTestHelper.GetCompilationDiagnostics(source, userCode);
 
         // No errors or warnings (excluding allowed ones)
@@ -125,69 +111,5 @@ public class CompilationProperties
         if (string.IsNullOrEmpty(filtered) || !char.IsLetter(filtered[0]))
             return "X" + filtered;
         return filtered;
-    }
-
-    /// <summary>
-    /// Generates user code that provides the event type and handler methods needed by the generated code.
-    /// </summary>
-    private static string GetUserCodeForMachine(
-        string className, string ns, string eventType, string stateType,
-        (string MethodName, string ReturnType, bool IsGuard, bool IsSideEffect)[] handlers)
-    {
-        var handlerMethods = string.Join("\n", handlers.Select(h =>
-        {
-            if (h.IsGuard)
-                return $"        public static bool {h.MethodName}(string state, {eventType} @event) => true;";
-            if (h.IsSideEffect)
-                return $"        public static void {h.MethodName}(string state, {eventType} @event) {{ }}";
-            return $"        public static string {h.MethodName}(string state, {eventType} @event) => \"NewState\";";
-        }));
-
-        return $@"
-#nullable enable
-using System;
-using System.Threading.Tasks;
-
-namespace StateMachineSrcGen
-{{
-    public interface IStatePersistence<TState>
-    {{
-        Task<TState> LoadAsync();
-        Task SaveAsync(TState state);
-    }}
-
-    public interface IStateLock<TState>
-    {{
-        Task<bool> AcquireAsync();
-        Task ReleaseAsync();
-    }}
-
-    public interface IDispatchableEvent<TEventId> where TEventId : IEquatable<TEventId>
-    {{
-        TEventId GetEventId();
-    }}
-
-    public enum TransitionResult
-    {{
-        Success,
-        NotHandled,
-        LockFailed
-    }}
-}}
-
-namespace {ns}
-{{
-    public class {eventType} : StateMachineSrcGen.IDispatchableEvent<string>
-    {{
-        public string EventId {{ get; set; }} = """";
-        public string GetEventId() => EventId;
-    }}
-
-    public static partial class {className}
-    {{
-{handlerMethods}
-    }}
-}}
-";
     }
 }

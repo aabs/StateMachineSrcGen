@@ -9,6 +9,6 @@ public interface IStateMachine<TState, TEvent>
     /// Handles an incoming event by dispatching it to the appropriate transition handler.
     /// </summary>
     /// <param name="event">The event to process.</param>
-    /// <returns>A <see cref="TransitionResult"/> indicating the outcome of the transition attempt.</returns>
-    Task<TransitionResult> HandleAsync(TEvent @event);
+    /// <returns>A <see cref="TransitionResult{TState}"/> indicating the outcome of the transition attempt.</returns>
+    Task<TransitionResult<TState>> HandleAsync(TEvent @event);
 }

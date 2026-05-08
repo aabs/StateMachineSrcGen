@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace StateMachineSrcGen.Parsing;
@@ -15,10 +13,10 @@ internal static class SyntaxExtractor
     /// </summary>
     private static readonly HashSet<string> s_classAttributeNames = new()
     {
-        "State",
-        "StateAttribute",
-        "Trigger",
-        "TriggerAttribute"
+        "InitialState",
+        "InitialStateAttribute",
+        "TerminalState",
+        "TerminalStateAttribute"
     };
 
     /// <summary>
@@ -31,12 +29,16 @@ internal static class SyntaxExtractor
         "Guard",
         "GuardAttribute",
         "SideEffect",
-        "SideEffectAttribute"
+        "SideEffectAttribute",
+        "OnEnter",
+        "OnEnterAttribute",
+        "OnTerminal",
+        "OnTerminalAttribute"
     };
 
     /// <summary>
     /// Determines whether a class declaration has any state machine attributes
-    /// (either class-level [State]/[Trigger] or method-level [Transition]/[Guard]/[SideEffect]).
+    /// (either class-level [InitialState]/[TerminalState] or method-level [Transition]/[Guard]/[SideEffect]/[OnEnter]/[OnTerminal]).
     /// </summary>
     public static bool HasStateMachineAttributes(ClassDeclarationSyntax classDeclaration)
     {

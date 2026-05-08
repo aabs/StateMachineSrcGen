@@ -17,17 +17,18 @@ namespace StateMachineSrcGen.Tests.Generation;
 internal static class GenerationTestHelper
 {
     /// <summary>
-    /// Creates a minimal valid ValidatedStateMachine with one transition.
+    /// Creates a minimal valid ValidatedStateMachine with one transition using enum-based types.
     /// </summary>
     public static ValidatedStateMachine CreateValidStateMachine(
         string className = "TestMachine",
         string ns = "TestNamespace",
-        string stateType = "string",
+        string stateType = "TestState",
         string eventType = "TestEvent",
-        string eventIdType = "string")
+        string stateIdEnumType = "TestStateId",
+        string eventIdEnumType = "TestEventId")
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 1, IsInitial = false, IsTerminal = true };
 
         return new ValidatedStateMachine
         {
@@ -35,9 +36,8 @@ internal static class GenerationTestHelper
             ClassName = className,
             StateTypeName = stateType,
             EventTypeName = eventType,
-            EventIdTypeName = eventIdType,
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = stateIdEnumType,
+            EventIdEnumTypeName = eventIdEnumType,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -46,35 +46,40 @@ internal static class GenerationTestHelper
                     FromState = "Idle",
                     ToState = "Running",
                     Trigger = "Start",
+                    FromStateEnumValue = 0,
+                    ToStateEnumValue = 1,
+                    TriggerEnumValue = 0,
                     EventId = "Start",
                     HandlerMethodName = "HandleStart",
                     GuardMethodName = null,
                     SideEffectMethodName = null,
+                    IsTerminal = true,
                     DeclarationOrder = 0
-                }))
+                })),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
     }
 
     /// <summary>
-    /// Creates a ValidatedStateMachine with multiple transitions, guards, and side effects.
+    /// Creates a ValidatedStateMachine with multiple transitions, guards, and side effects using enum-based types.
     /// </summary>
     public static ValidatedStateMachine CreateComplexStateMachine(
         string className = "ComplexMachine",
         string ns = "TestNamespace")
     {
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-        var running = new ValidatedState { Name = "Running", IsInitial = false, IsTerminal = false };
-        var stopped = new ValidatedState { Name = "Stopped", IsInitial = false, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+        var running = new ValidatedState { Name = "Running", EnumValue = 1, IsInitial = false, IsTerminal = false };
+        var stopped = new ValidatedState { Name = "Stopped", EnumValue = 2, IsInitial = false, IsTerminal = true };
 
         return new ValidatedStateMachine
         {
             Namespace = ns,
             ClassName = className,
-            StateTypeName = "string",
+            StateTypeName = "TestState",
             EventTypeName = "TestEvent",
-            EventIdTypeName = "string",
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = "TestStateId",
+            EventIdEnumTypeName = "TestEventId",
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running, stopped)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -83,10 +88,14 @@ internal static class GenerationTestHelper
                     FromState = "Idle",
                     ToState = "Running",
                     Trigger = "Start",
+                    FromStateEnumValue = 0,
+                    ToStateEnumValue = 1,
+                    TriggerEnumValue = 0,
                     EventId = "Start",
                     HandlerMethodName = "HandleStart",
                     GuardMethodName = "CanStart",
                     SideEffectMethodName = "OnStarted",
+                    IsTerminal = false,
                     DeclarationOrder = 0
                 },
                 new ValidatedTransition
@@ -94,12 +103,18 @@ internal static class GenerationTestHelper
                     FromState = "Running",
                     ToState = "Stopped",
                     Trigger = "Stop",
+                    FromStateEnumValue = 1,
+                    ToStateEnumValue = 2,
+                    TriggerEnumValue = 1,
                     EventId = "Stop",
                     HandlerMethodName = "HandleStop",
                     GuardMethodName = null,
                     SideEffectMethodName = null,
+                    IsTerminal = true,
                     DeclarationOrder = 1
-                }))
+                })),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
     }
 
@@ -111,14 +126,15 @@ internal static class GenerationTestHelper
         string ns,
         string stateType,
         string eventType,
-        string eventIdType,
+        string stateIdEnumType,
+        string eventIdEnumType,
         ValidatedState[] states,
         ValidatedTransition[] transitions)
     {
         var initial = states.FirstOrDefault(s => s.IsInitial);
         if (!states.Any(s => s.IsInitial))
         {
-            initial = states.Length > 0 ? states[0] : new ValidatedState { Name = "Default", IsInitial = true, IsTerminal = true };
+            initial = states.Length > 0 ? states[0] : new ValidatedState { Name = "Default", EnumValue = 0, IsInitial = true, IsTerminal = true };
         }
 
         return new ValidatedStateMachine
@@ -127,13 +143,123 @@ internal static class GenerationTestHelper
             ClassName = className,
             StateTypeName = stateType,
             EventTypeName = eventType,
-            EventIdTypeName = eventIdType,
-            ImplementsIStateMachineState = false,
-            StateIdTypeName = null,
+            StateIdEnumTypeName = stateIdEnumType,
+            EventIdEnumTypeName = eventIdEnumType,
             States = new EquatableArray<ValidatedState>(states.ToImmutableArray()),
             InitialState = initial,
-            Transitions = new EquatableArray<ValidatedTransition>(transitions.ToImmutableArray())
+            Transitions = new EquatableArray<ValidatedTransition>(transitions.ToImmutableArray()),
+            EntryCallbacks = new EquatableArray<ValidatedEntryCallback>(ImmutableArray<ValidatedEntryCallback>.Empty),
+            CleanupHandlerMethodName = null
         };
+    }
+
+    /// <summary>
+    /// Builds support code for enum-based state machines that provides all types needed for compilation.
+    /// </summary>
+    public static string BuildEnumSupportCode(ValidatedStateMachine input)
+    {
+        var handlerMethods = string.Join("\n", input.Transitions.Select(t =>
+        {
+            var methods = $"        public static {input.StateTypeName} {t.HandlerMethodName}({input.StateTypeName} state, {input.EventTypeName} @event) => state;";
+
+            if (t.GuardMethodName != null)
+                methods += $"\n        public static bool {t.GuardMethodName}({input.StateTypeName} state, {input.EventTypeName} @event) => true;";
+
+            if (t.SideEffectMethodName != null)
+                methods += $"\n        public static void {t.SideEffectMethodName}({input.StateTypeName} state, {input.EventTypeName} @event) {{ }}";
+
+            return methods;
+        }));
+
+        var entryMethods = string.Join("\n", input.EntryCallbacks.Select(ec =>
+        {
+            if (ec.ReturnsTState)
+                return $"        public static {input.StateTypeName} {ec.MethodName}({input.StateTypeName} state, {input.EventTypeName} @event) => state;";
+            else
+                return $"        public static void {ec.MethodName}({input.StateTypeName} state, {input.EventTypeName} @event) {{ }}";
+        }));
+
+        var cleanupMethod = input.CleanupHandlerMethodName != null
+            ? $"        public static System.Threading.Tasks.Task {input.CleanupHandlerMethodName}({input.StateTypeName} state) => System.Threading.Tasks.Task.CompletedTask;"
+            : "";
+
+        var stateIdEnumMembers = string.Join(",\n        ",
+            input.States.Select(s => $"{s.Name} = {s.EnumValue}"));
+
+        var eventIdEnumMembers = string.Join(",\n        ",
+            input.Transitions.Select(t => (t.Trigger, t.TriggerEnumValue))
+                .Distinct()
+                .Select(e => $"{e.Trigger} = {e.TriggerEnumValue}"));
+
+        return $@"
+#nullable enable
+using System;
+using System.Threading.Tasks;
+
+namespace StateMachineSrcGen
+{{
+    public interface IStatePersistence<TState>
+    {{
+        Task<TState> LoadAsync();
+        Task SaveAsync(TState state);
+    }}
+
+    public interface IStateLock<TState>
+    {{
+        Task<bool> AcquireAsync();
+        Task ReleaseAsync();
+    }}
+
+    public interface IStateMachineState<TStateId> where TStateId : struct, Enum
+    {{
+        TStateId GetStateId();
+    }}
+
+    public interface IDispatchableEvent<TEventId> where TEventId : struct, Enum
+    {{
+        TEventId GetEventId();
+    }}
+
+    public readonly struct TransitionResult<TState>
+    {{
+        public TState? State {{ get; }}
+        private TransitionResult(TState? state) {{ State = state; }}
+        public static TransitionResult<TState> Succeeded(TState newState) => new(newState);
+        public static TransitionResult<TState> GuardRejected => new(default);
+        public static TransitionResult<TState> NoTransition => new(default);
+    }}
+}}
+
+namespace {input.Namespace}
+{{
+    public enum {input.StateIdEnumTypeName}
+    {{
+        {stateIdEnumMembers}
+    }}
+
+    public enum {input.EventIdEnumTypeName}
+    {{
+        {eventIdEnumMembers}
+    }}
+
+    public class {input.StateTypeName} : StateMachineSrcGen.IStateMachineState<{input.StateIdEnumTypeName}>
+    {{
+        public {input.StateIdEnumTypeName} GetStateId() => default;
+    }}
+
+    public class {input.EventTypeName} : StateMachineSrcGen.IDispatchableEvent<{input.EventIdEnumTypeName}>
+    {{
+        public {input.EventIdEnumTypeName} GetEventId() => default;
+    }}
+
+    public static partial class {input.ClassName}
+    {{
+{handlerMethods}
+{entryMethods}
+{cleanupMethod}
+    }}
+}}
+";
     }
 
     /// <summary>
@@ -146,7 +272,6 @@ internal static class GenerationTestHelper
             CSharpSyntaxTree.ParseText(generatedSource)
         };
 
-        // Add user code that provides the types referenced by generated code
         var supportCode = userCode ?? GetDefaultSupportCode();
         syntaxTrees.Add(CSharpSyntaxTree.ParseText(supportCode));
 
@@ -210,38 +335,62 @@ namespace StateMachineSrcGen
         Task ReleaseAsync();
     }
 
-    public interface IDispatchableEvent<TEventId> where TEventId : IEquatable<TEventId>
+    public interface IStateMachineState<TStateId> where TStateId : struct, Enum
+    {
+        TStateId GetStateId();
+    }
+
+    public interface IDispatchableEvent<TEventId> where TEventId : struct, Enum
     {
         TEventId GetEventId();
     }
 
-    public enum TransitionResult
+    public readonly struct TransitionResult<TState>
     {
-        Success,
-        NotHandled,
-        LockFailed
+        public TState? State { get; }
+        private TransitionResult(TState? state) { State = state; }
+        public static TransitionResult<TState> Succeeded(TState newState) => new(newState);
+        public static TransitionResult<TState> GuardRejected => new(default);
+        public static TransitionResult<TState> NoTransition => new(default);
     }
 }
 
 namespace TestNamespace
 {
-    public class TestEvent : StateMachineSrcGen.IDispatchableEvent<string>
+    public enum TestStateId
     {
-        public string EventId { get; set; } = """";
-        public string GetEventId() => EventId;
+        Idle = 0,
+        Running = 1,
+        Stopped = 2
+    }
+
+    public enum TestEventId
+    {
+        Start = 0,
+        Stop = 1
+    }
+
+    public class TestState : StateMachineSrcGen.IStateMachineState<TestStateId>
+    {
+        public TestStateId GetStateId() => default;
+    }
+
+    public class TestEvent : StateMachineSrcGen.IDispatchableEvent<TestEventId>
+    {
+        public TestEventId GetEventId() => default;
     }
 
     public static partial class TestMachine
     {
-        public static string HandleStart(string state, TestEvent @event) => ""Running"";
+        public static TestState HandleStart(TestState state, TestEvent @event) => state;
     }
 
     public static partial class ComplexMachine
     {
-        public static bool CanStart(string state, TestEvent @event) => true;
-        public static string HandleStart(string state, TestEvent @event) => ""Running"";
-        public static void OnStarted(string state, TestEvent @event) { }
-        public static string HandleStop(string state, TestEvent @event) => ""Stopped"";
+        public static bool CanStart(TestState state, TestEvent @event) => true;
+        public static TestState HandleStart(TestState state, TestEvent @event) => state;
+        public static void OnStarted(TestState state, TestEvent @event) { }
+        public static TestState HandleStop(TestState state, TestEvent @event) => state;
     }
 }
 ";
@@ -254,7 +403,6 @@ namespace TestNamespace
     {
         var references = new List<MetadataReference>();
 
-        // Add core runtime references
         var trustedAssemblies = ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))?.Split(Path.PathSeparator) ?? Array.Empty<string>();
 
         foreach (var assembly in trustedAssemblies)

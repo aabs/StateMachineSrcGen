@@ -8,6 +8,7 @@ namespace StateMachineSrcGen.Analysis;
 
 /// <summary>
 /// Validates handler method signatures match expected patterns.
+/// Covers transition handlers, guards, side effects, entry callbacks, and cleanup handlers.
 /// </summary>
 internal static class SignatureValidator
 {
@@ -20,6 +21,10 @@ internal static class SignatureValidator
 
         foreach (var handler in input.Handlers)
         {
+            // Skip entry callbacks and cleanup handlers - they are validated by EntryCallbackValidator
+            if (handler.Kind == HandlerKind.EntryCallback || handler.Kind == HandlerKind.Cleanup)
+                continue;
+
             var sig = handler.Signature;
             var issues = new List<string>();
 

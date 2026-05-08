@@ -12,7 +12,7 @@
     <PackageId>StateMachineSrcGen</PackageId>
     <Version>0.1.0</Version>
     <Authors>StateMachineSrcGen Contributors</Authors>
-    <Description>A Roslyn Incremental Source Generator that transforms concise, attribute-decorated C# class declarations into fully-functional state machine implementations at compile time.</Description>
+    <Description>A Roslyn Incremental Source Generator that transforms concise, attribute-decorated C# class declarations into fully-functional state machine implementations at compile time — with type-safe enum-based transitions, guards, side-effects, entry callbacks, and terminal-state cleanup.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/StateMachineSrcGen/StateMachineSrcGen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/StateMachineSrcGen/StateMachineSrcGen</RepositoryUrl>

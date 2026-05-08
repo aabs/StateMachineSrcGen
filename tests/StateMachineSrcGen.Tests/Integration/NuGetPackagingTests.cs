@@ -107,8 +107,10 @@ public class NuGetPackagingTests
         Assert.Contains("TransitionAttribute", publicTypes);
         Assert.Contains("GuardAttribute", publicTypes);
         Assert.Contains("SideEffectAttribute", publicTypes);
-        Assert.Contains("StateAttribute", publicTypes);
-        Assert.Contains("TriggerAttribute", publicTypes);
+        Assert.Contains("InitialStateAttribute", publicTypes);
+        Assert.Contains("TerminalStateAttribute", publicTypes);
+        Assert.Contains("OnEnterAttribute", publicTypes);
+        Assert.Contains("OnTerminalAttribute", publicTypes);
 
         // Core interfaces
         Assert.Contains("IStateMachine`2", publicTypes.Select(n => n.Contains("IStateMachine") ? "IStateMachine`2" : n));

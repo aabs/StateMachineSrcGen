@@ -3,14 +3,29 @@ using StateMachineSrcGen;
 namespace StateMachineSrcGen.Playground;
 
 /// <summary>
-/// Rich state object for the order state machine.
-/// Implements IStateMachineState&lt;string&gt; so the generated dispatch logic
-/// uses GetStateId() for transition comparisons, while the full object
-/// (including Items) is what gets persisted and passed to handlers.
+/// Enum representing the valid states of the order state machine.
+/// Each member is a discrete state the order can be in.
 /// </summary>
-public record OrderState(string Status, List<OrderItem> Items) : IStateMachineState<string>
+public enum OrderStateId
 {
-    public string GetStateId() => Status;
+    Pending,
+    Confirmed,
+    Shipped,
+    Cancelled
+}
+
+/// <summary>
+/// Rich state object for the order state machine.
+/// Implements IStateMachineState&lt;OrderStateId&gt; so the generated dispatch logic
+/// uses GetStateId() for transition comparisons, while the full object
+/// (including Items and ItemCount) is what gets persisted and passed to handlers.
+/// </summary>
+public record OrderState(OrderStateId Id, List<OrderItem> Items) : IStateMachineState<OrderStateId>
+{
+    /// <summary>Gets the number of items in the order.</summary>
+    public int ItemCount => Items.Count;
+
+    public OrderStateId GetStateId() => Id;
 }
 
 /// <summary>

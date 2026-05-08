@@ -8,7 +8,7 @@ namespace StateMachineSrcGen.Analysis;
 
 /// <summary>
 /// Validates state declarations: empty states, initial state cardinality,
-/// duplicate state names, and unreachable states.
+/// duplicate state names, unreachable states, and initial+terminal overlap.
 /// </summary>
 internal static class StateValidator
 {
@@ -59,6 +59,21 @@ internal static class StateValidator
                 DiagnosticDescriptors.MultipleInitialStates,
                 input.Location,
                 names));
+        }
+
+        // SMSG020: Initial + Terminal overlap (warning)
+        if (input.InitialStateName != null && input.TerminalStateNames.Any())
+        {
+            foreach (var terminalName in input.TerminalStateNames)
+            {
+                if (terminalName == input.InitialStateName)
+                {
+                    diagnostics.Add(Diagnostic.Create(
+                        DiagnosticDescriptors.InitialAndTerminalState,
+                        input.Location,
+                        terminalName));
+                }
+            }
         }
 
         // SMSG009: Unreachable states (warning)

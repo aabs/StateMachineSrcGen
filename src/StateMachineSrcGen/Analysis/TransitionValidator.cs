@@ -7,8 +7,11 @@ using StateMachineSrcGen.Diagnostics;
 namespace StateMachineSrcGen.Analysis;
 
 /// <summary>
-/// Validates transition handlers: duplicate handlers, undefined state/trigger references,
-/// and missing target states.
+/// Validates transition handlers: duplicate handlers (SMSG001), missing target states (SMSG014),
+/// and undefined state/trigger references (SMSG002/SMSG003).
+/// In the enum-based API, SMSG002/SMSG003 are effectively redundant because enum membership
+/// ensures valid references. However, the checks are preserved for completeness and for
+/// scenarios where the parsed model has inconsistencies.
 /// </summary>
 internal static class TransitionValidator
 {
@@ -20,13 +23,17 @@ internal static class TransitionValidator
         var diagnostics = new List<Diagnostic>();
 
         var declaredStates = new HashSet<string>(input.States.Select(s => s.Name));
-        var declaredTriggers = new HashSet<string>(input.Triggers.Select(t => t.Name));
+        var declaredTriggers = new HashSet<string>(input.Events.Select(t => t.Name));
 
         // Track seen (From, To, Trigger) triples for duplicate detection
         var seenTransitions = new HashSet<(string From, string To, string Trigger)>();
 
         foreach (var handler in input.Handlers)
         {
+            // Skip non-transition handlers for transition-specific checks
+            if (handler.Kind == HandlerKind.Cleanup || handler.Kind == HandlerKind.EntryCallback)
+                continue;
+
             if (handler.Kind == HandlerKind.Transition)
             {
                 // SMSG001: Duplicate transition handler

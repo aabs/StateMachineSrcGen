@@ -64,14 +64,15 @@ public class GenerationDeterminismProperties
         var className = ToIdentifier(classRaw);
         var ns = ToIdentifier(nsRaw);
 
-        var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = true };
+        var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = true };
 
         var input = GenerationTestHelper.CreateStateMachine(
             className: className,
             ns: ns,
-            stateType: "string",
+            stateType: "TestState",
             eventType: "TestEvent",
-            eventIdType: "string",
+            stateIdEnumType: "TestStateId",
+            eventIdEnumType: "TestEventId",
             states: new[] { idle },
             transitions: Array.Empty<ValidatedTransition>());
 
@@ -93,6 +94,7 @@ public class GenerationDeterminismProperties
             .Select(i => new ValidatedState
             {
                 Name = $"State{i}",
+                EnumValue = i,
                 IsInitial = i == 0,
                 IsTerminal = i == count
             })
@@ -104,10 +106,14 @@ public class GenerationDeterminismProperties
                 FromState = $"State{i}",
                 ToState = $"State{i + 1}",
                 Trigger = $"Go{i}",
+                FromStateEnumValue = i,
+                ToStateEnumValue = i + 1,
+                TriggerEnumValue = i,
                 EventId = $"Go{i}",
                 HandlerMethodName = $"Handle{i}",
                 GuardMethodName = null,
                 SideEffectMethodName = null,
+                IsTerminal = i == count - 1,
                 DeclarationOrder = i
             })
             .ToArray();
@@ -115,9 +121,10 @@ public class GenerationDeterminismProperties
         var input = GenerationTestHelper.CreateStateMachine(
             className: "TestMachine",
             ns: "TestNamespace",
-            stateType: "string",
+            stateType: "TestState",
             eventType: "TestEvent",
-            eventIdType: "string",
+            stateIdEnumType: "TestStateId",
+            eventIdEnumType: "TestEventId",
             states: states,
             transitions: transitions);
 

@@ -71,14 +71,15 @@ public class GenerationReliabilityProperties
 
         try
         {
-            var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = true };
+            var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = true };
 
             var input = GenerationTestHelper.CreateStateMachine(
                 className: className,
                 ns: ns,
-                stateType: "string",
+                stateType: "TestState",
                 eventType: "TestEvent",
-                eventIdType: "string",
+                stateIdEnumType: "TestStateId",
+                eventIdEnumType: "TestEventId",
                 states: new[] { idle },
                 transitions: Array.Empty<ValidatedTransition>());
 
@@ -104,6 +105,7 @@ public class GenerationReliabilityProperties
                 .Select(i => new ValidatedState
                 {
                     Name = $"State{i}",
+                    EnumValue = i,
                     IsInitial = i == 0,
                     IsTerminal = i == count
                 })
@@ -115,10 +117,14 @@ public class GenerationReliabilityProperties
                     FromState = $"State{i}",
                     ToState = $"State{i + 1}",
                     Trigger = $"Go{i}",
+                    FromStateEnumValue = i,
+                    ToStateEnumValue = i + 1,
+                    TriggerEnumValue = i,
                     EventId = $"Go{i}",
                     HandlerMethodName = $"Handle{i}",
                     GuardMethodName = null,
                     SideEffectMethodName = null,
+                    IsTerminal = i == count - 1,
                     DeclarationOrder = i
                 })
                 .ToArray();
@@ -126,9 +132,10 @@ public class GenerationReliabilityProperties
             var input = GenerationTestHelper.CreateStateMachine(
                 className: className,
                 ns: "TestNamespace",
-                stateType: "string",
+                stateType: "TestState",
                 eventType: "TestEvent",
-                eventIdType: "string",
+                stateIdEnumType: "TestStateId",
+                eventIdEnumType: "TestEventId",
                 states: states,
                 transitions: transitions);
 
@@ -150,15 +157,16 @@ public class GenerationReliabilityProperties
 
         try
         {
-            var idle = new ValidatedState { Name = "Idle", IsInitial = true, IsTerminal = false };
-            var active = new ValidatedState { Name = "Active", IsInitial = false, IsTerminal = true };
+            var idle = new ValidatedState { Name = "Idle", EnumValue = 0, IsInitial = true, IsTerminal = false };
+            var active = new ValidatedState { Name = "Active", EnumValue = 0, IsInitial = false, IsTerminal = true };
 
             var input = GenerationTestHelper.CreateStateMachine(
                 className: className,
                 ns: ns,
-                stateType: "string",
+                stateType: "TestState",
                 eventType: "TestEvent",
-                eventIdType: "string",
+                stateIdEnumType: "TestStateId",
+                eventIdEnumType: "TestEventId",
                 states: new[] { idle, active },
                 transitions: new[]
                 {
@@ -171,6 +179,10 @@ public class GenerationReliabilityProperties
                         HandlerMethodName = "HandleActivate",
                         GuardMethodName = "CanActivate",
                         SideEffectMethodName = "OnActivated",
+                        FromStateEnumValue = 0,
+                        ToStateEnumValue = 0,
+                        TriggerEnumValue = 0,
+                        IsTerminal = false,
                         DeclarationOrder = 0
                     }
                 });
@@ -194,3 +206,5 @@ public class GenerationReliabilityProperties
         return filtered;
     }
 }
+
+
