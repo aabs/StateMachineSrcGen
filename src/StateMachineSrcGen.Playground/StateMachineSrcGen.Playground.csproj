@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Emit generated source files to disk for inspection -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <!-- Reference the attributes assembly directly for types like [State], [Transition], etc. -->
+  <ItemGroup>
+    <ProjectReference Include="..\StateMachineSrcGen.Attributes\StateMachineSrcGen.Attributes.csproj" />
+  </ItemGroup>
+
+  <!-- Reference the generator as an analyzer so it runs at compile time -->
+  <ItemGroup>
+    <ProjectReference Include="..\StateMachineSrcGen\StateMachineSrcGen.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

@@ -79,21 +79,38 @@ internal static class HandlerParser
         AttributeSyntax attribute,
         SemanticModel semanticModel)
     {
+        // Try semantic resolution first (most accurate)
         var symbolInfo = semanticModel.GetSymbolInfo(attribute);
         var attrSymbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
 
-        if (attrSymbol is null)
-            return (default, false);
-
-        var containingType = attrSymbol.ContainingType;
-        if (containingType?.ContainingNamespace?.ToString() != "StateMachineSrcGen")
-            return (default, false);
-
-        return containingType.Name switch
+        if (attrSymbol is not null)
         {
-            "TransitionAttribute" => (HandlerKind.Transition, true),
-            "GuardAttribute" => (HandlerKind.Guard, true),
-            "SideEffectAttribute" => (HandlerKind.SideEffect, true),
+            var containingType = attrSymbol.ContainingType;
+            if (containingType?.ContainingNamespace?.ToString() != "StateMachineSrcGen")
+                return (default, false);
+
+            return containingType.Name switch
+            {
+                "TransitionAttribute" => (HandlerKind.Transition, true),
+                "GuardAttribute" => (HandlerKind.Guard, true),
+                "SideEffectAttribute" => (HandlerKind.SideEffect, true),
+                _ => (default, false)
+            };
+        }
+
+        // Fallback: syntax-based name matching when semantic resolution fails
+        var name = attribute.Name switch
+        {
+            SimpleNameSyntax simple => simple.Identifier.Text,
+            QualifiedNameSyntax qualified => qualified.Right.Identifier.Text,
+            _ => string.Empty
+        };
+
+        return name switch
+        {
+            "Transition" or "TransitionAttribute" => (HandlerKind.Transition, true),
+            "Guard" or "GuardAttribute" => (HandlerKind.Guard, true),
+            "SideEffect" or "SideEffectAttribute" => (HandlerKind.SideEffect, true),
             _ => (default, false)
         };
     }

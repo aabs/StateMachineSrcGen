@@ -152,6 +152,8 @@ internal static class DeclarationParser
     /// Infers TState and TEvent from the first [Transition] handler method's parameters.
     /// TState = first parameter type, TEvent = second parameter type.
     /// Returns ("Unknown", "Unknown") if no transition handler is found.
+    /// Uses a two-pass approach: first tries semantic resolution, then falls back to syntax-based
+    /// attribute name matching to handle cases where the attributes assembly isn't yet resolved.
     /// </summary>
     private static (string StateTypeName, string EventTypeName) InferTypesFromHandlers(
         ClassDeclarationSyntax classDeclaration,
@@ -166,15 +168,7 @@ internal static class DeclarationParser
             {
                 foreach (var attribute in attributeList.Attributes)
                 {
-                    var symbolInfo = semanticModel.GetSymbolInfo(attribute);
-                    var attrSymbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
-
-                    if (attrSymbol is null)
-                        continue;
-
-                    var containingType = attrSymbol.ContainingType;
-                    if (containingType?.Name != "TransitionAttribute" ||
-                        containingType.ContainingNamespace?.ToString() != "StateMachineSrcGen")
+                    if (!IsTransitionAttribute(attribute, semanticModel))
                         continue;
 
                     // Found a [Transition] handler — extract parameter types
@@ -209,6 +203,36 @@ internal static class DeclarationParser
     }
 
     /// <summary>
+    /// Determines whether an attribute is a [Transition] attribute.
+    /// First attempts semantic resolution for accuracy, then falls back to syntax-based
+    /// name matching when the semantic model cannot resolve the symbol (e.g., when the
+    /// attributes assembly reference isn't yet available during compilation).
+    /// </summary>
+    private static bool IsTransitionAttribute(AttributeSyntax attribute, SemanticModel semanticModel)
+    {
+        // Try semantic resolution first (most accurate)
+        var symbolInfo = semanticModel.GetSymbolInfo(attribute);
+        var attrSymbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
+
+        if (attrSymbol is not null)
+        {
+            var containingType = attrSymbol.ContainingType;
+            return containingType?.Name == "TransitionAttribute" &&
+                   containingType.ContainingNamespace?.ToString() == "StateMachineSrcGen";
+        }
+
+        // Fallback: syntax-based name matching when semantic resolution fails
+        var name = attribute.Name switch
+        {
+            SimpleNameSyntax simple => simple.Identifier.Text,
+            QualifiedNameSyntax qualified => qualified.Right.Identifier.Text,
+            _ => string.Empty
+        };
+
+        return name == "Transition" || name == "TransitionAttribute";
+    }
+
+    /// <summary>
     /// Detects whether the inferred event type implements IDispatchableEvent&lt;TEventId&gt;.
     /// Looks up the event type symbol from the semantic model and checks its interfaces.
     /// </summary>
@@ -233,15 +257,7 @@ internal static class DeclarationParser
             {
                 foreach (var attribute in attributeList.Attributes)
                 {
-                    var symbolInfo = semanticModel.GetSymbolInfo(attribute);
-                    var attrSymbol = symbolInfo.Symbol ?? symbolInfo.CandidateSymbols.FirstOrDefault();
-
-                    if (attrSymbol is null)
-                        continue;
-
-                    var containingType = attrSymbol.ContainingType;
-                    if (containingType?.Name != "TransitionAttribute" ||
-                        containingType.ContainingNamespace?.ToString() != "StateMachineSrcGen")
+                    if (!IsTransitionAttribute(attribute, semanticModel))
                         continue;
 
                     // Found a [Transition] handler — get the event type symbol

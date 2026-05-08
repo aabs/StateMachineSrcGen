@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "StateMachineSrcGen.Playground": {
+      "commandName": "Project"
+    },
+    "DebugGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../StateMachineSrcGen.Playground/StateMachineSrcGen.Playground.csproj"
+    }
+  }
+}

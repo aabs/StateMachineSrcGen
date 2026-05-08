@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="src/StateMachineSrcGen/StateMachineSrcGen.csproj" />
   <Project Path="src/StateMachineSrcGen.Attributes/StateMachineSrcGen.Attributes.csproj" />
+  <Project Path="src/StateMachineSrcGen.Playground/StateMachineSrcGen.Playground.csproj" />
   <Project Path="tests/StateMachineSrcGen.Tests/StateMachineSrcGen.Tests.csproj" />
 </Solution>
