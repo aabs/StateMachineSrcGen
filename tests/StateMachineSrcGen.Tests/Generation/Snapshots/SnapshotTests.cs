@@ -33,6 +33,8 @@ public class SnapshotTests
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -88,6 +90,8 @@ public class SnapshotTests
             StateTypeName = "WfState",
             EventTypeName = "WfEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, active, done)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -202,6 +206,8 @@ public class SnapshotTests
             StateTypeName = "string",
             EventTypeName = "MEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, stateA, stateB)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(

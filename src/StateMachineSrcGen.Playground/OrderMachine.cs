@@ -10,10 +10,10 @@ namespace StateMachineSrcGen.Playground;
 public static partial class OrderMachine
 {
     [Transition("Pending", "Confirmed", "Confirm", EventId = "confirm")]
-    public static string HandleConfirm(string state, OrderEvent @event)
-        => "Confirmed";
+    public static OrderState HandleConfirm(OrderState state, OrderEvent @event)
+        => state with { Status = "Confirmed" };
 
     [Transition("Confirmed", "Shipped", "Ship", EventId = "ship")]
-    public static string HandleShip(string state, OrderEvent @event)
-        => "Shipped";
+    public static OrderState HandleShip(OrderState state, OrderEvent @event)
+        => state with { Status = "Shipped" };
 }

@@ -313,6 +313,8 @@ public static class StateMachineArbitraries
                       Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
                       ImplementsIDispatchableEvent = true,
                       EventIdTypeName = "string",
+                      ImplementsIStateMachineState = false,
+                      StateIdTypeName = null,
                       Location = Location.None
                   };
         return gen.ToArbitrary();
@@ -405,6 +407,8 @@ public static class StateMachineArbitraries
             Modifiers = missingModifiers ? ClassModifiers.Public : (ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static),
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
     }
@@ -434,6 +438,8 @@ public static class StateMachineArbitraries
                       StateTypeName = stateType,
                       EventTypeName = eventType,
                       EventIdTypeName = "string",
+                      ImplementsIStateMachineState = false,
+                      StateIdTypeName = null,
                       States = new EquatableArray<ValidatedState>(ImmutableArray.Create(initial, terminal)),
                       InitialState = initial,
                       Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -473,6 +479,8 @@ public static class StateMachineArbitraries
                       StateTypeName = "string",
                       EventTypeName = "TestEvent",
                       EventIdTypeName = "string",
+                      ImplementsIStateMachineState = false,
+                      StateIdTypeName = null,
                       States = new EquatableArray<ValidatedState>(ImmutableArray.Create(initial, terminal)),
                       InitialState = initial,
                       Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(

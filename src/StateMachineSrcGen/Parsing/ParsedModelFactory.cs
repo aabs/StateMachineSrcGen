@@ -39,6 +39,8 @@ internal static class ParsedModelFactory
                 Modifiers = declaration.Modifiers,
                 ImplementsIDispatchableEvent = declaration.ImplementsIDispatchableEvent,
                 EventIdTypeName = declaration.EventIdTypeName,
+                ImplementsIStateMachineState = declaration.ImplementsIStateMachineState,
+                StateIdTypeName = declaration.StateIdTypeName,
                 Location = declaration.Location
             };
 

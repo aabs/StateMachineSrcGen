@@ -39,6 +39,12 @@ public readonly record struct ParsedStateMachine : IEquatable<ParsedStateMachine
     /// <summary>Gets the TEventId type name from IDispatchableEvent, or null if not implemented.</summary>
     public required string? EventIdTypeName { get; init; }
 
+    /// <summary>Gets whether the state type implements IStateMachineState.</summary>
+    public required bool ImplementsIStateMachineState { get; init; }
+
+    /// <summary>Gets the TStateId type name from IStateMachineState, or null if not implemented.</summary>
+    public required string? StateIdTypeName { get; init; }
+
     /// <summary>Gets the source location of the class declaration.</summary>
     public required Location Location { get; init; }
 }

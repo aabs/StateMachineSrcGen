@@ -23,6 +23,12 @@ public readonly record struct ValidatedStateMachine : IEquatable<ValidatedStateM
     /// <summary>Gets the TEventId type name from IDispatchableEvent.</summary>
     public required string EventIdTypeName { get; init; }
 
+    /// <summary>Gets whether the state type implements IStateMachineState&lt;TStateId&gt;.</summary>
+    public required bool ImplementsIStateMachineState { get; init; }
+
+    /// <summary>Gets the TStateId type name from IStateMachineState, or null if state type is a plain string.</summary>
+    public required string? StateIdTypeName { get; init; }
+
     /// <summary>Gets the validated states.</summary>
     public required EquatableArray<ValidatedState> States { get; init; }
 

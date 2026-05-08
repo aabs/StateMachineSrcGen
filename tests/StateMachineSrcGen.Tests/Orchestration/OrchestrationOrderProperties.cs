@@ -45,6 +45,8 @@ public class OrchestrationOrderProperties
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running, fast)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -90,6 +92,8 @@ public class OrchestrationOrderProperties
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, stateA, stateB)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -207,6 +211,8 @@ namespace TestNs
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -318,6 +324,8 @@ namespace TestNs
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -375,6 +383,8 @@ namespace TestNs
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(

@@ -26,6 +26,8 @@ internal static class DeclarationParser
         public string EventTypeName { get; init; }
         public bool ImplementsIDispatchableEvent { get; init; }
         public string? EventIdTypeName { get; init; }
+        public bool ImplementsIStateMachineState { get; init; }
+        public string? StateIdTypeName { get; init; }
         public ImmutableArray<ParsedState> States { get; init; }
         public ImmutableArray<ParsedTrigger> Triggers { get; init; }
         public Location Location { get; init; }
@@ -85,6 +87,10 @@ internal static class DeclarationParser
         var (implementsIDispatchableEvent, eventIdTypeName) = DetectIDispatchableEvent(
             classSymbol, eventTypeName, semanticModel, classDeclaration);
 
+        // Detect IStateMachineState<TStateId> on the inferred state type
+        var (implementsIStateMachineState, stateIdTypeName) = DetectIStateMachineState(
+            stateTypeName, semanticModel, classDeclaration);
+
         // Extract [State] and [Trigger] attributes
         var states = ExtractStates(classDeclaration, semanticModel);
         var triggers = ExtractTriggers(classDeclaration, semanticModel);
@@ -100,6 +106,8 @@ internal static class DeclarationParser
             EventTypeName = eventTypeName,
             ImplementsIDispatchableEvent = implementsIDispatchableEvent,
             EventIdTypeName = eventIdTypeName,
+            ImplementsIStateMachineState = implementsIStateMachineState,
+            StateIdTypeName = stateIdTypeName,
             States = states,
             Triggers = triggers,
             Location = Location.None,
@@ -287,6 +295,70 @@ internal static class DeclarationParser
             {
                 var eventIdType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
                 return (true, eventIdType);
+            }
+        }
+
+        return (false, null);
+    }
+
+    /// <summary>
+    /// Detects whether the inferred state type implements IStateMachineState&lt;TStateId&gt;.
+    /// Looks up the state type symbol from the first transition handler's first parameter.
+    /// </summary>
+    private static (bool Implements, string? StateIdTypeName) DetectIStateMachineState(
+        string stateTypeName,
+        SemanticModel semanticModel,
+        ClassDeclarationSyntax classDeclaration)
+    {
+        if (stateTypeName == "Unknown")
+            return (false, null);
+
+        // For primitive types like string, no interface detection needed
+        if (stateTypeName == "string" || stateTypeName == "String" || stateTypeName == "System.String")
+            return (false, null);
+
+        // Try to find the state type symbol by looking at the first transition handler's first parameter
+        INamedTypeSymbol? stateTypeSymbol = null;
+
+        foreach (var member in classDeclaration.Members)
+        {
+            if (member is not MethodDeclarationSyntax method)
+                continue;
+
+            foreach (var attributeList in method.AttributeLists)
+            {
+                foreach (var attribute in attributeList.Attributes)
+                {
+                    if (!IsTransitionAttribute(attribute, semanticModel))
+                        continue;
+
+                    // Found a [Transition] handler — get the state type symbol
+                    var parameters = method.ParameterList.Parameters;
+                    if (parameters.Count >= 1 && parameters[0].Type != null)
+                    {
+                        var stateTypeInfo = semanticModel.GetTypeInfo(parameters[0].Type!);
+                        stateTypeSymbol = stateTypeInfo.Type as INamedTypeSymbol;
+                    }
+
+                    goto FoundStateHandler;
+                }
+            }
+        }
+
+        FoundStateHandler:
+
+        if (stateTypeSymbol is null)
+            return (false, null);
+
+        // Check if the state type implements IStateMachineState<TStateId>
+        foreach (var iface in stateTypeSymbol.AllInterfaces)
+        {
+            if (iface.Name == "IStateMachineState" &&
+                iface.ContainingNamespace?.ToString() == "StateMachineSrcGen" &&
+                iface.TypeArguments.Length == 1)
+            {
+                var stateIdType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+                return (true, stateIdType);
             }
         }
 

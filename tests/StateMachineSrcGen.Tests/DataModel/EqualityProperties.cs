@@ -575,6 +575,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -589,6 +591,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
 
@@ -623,6 +627,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -637,6 +643,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
 
@@ -666,6 +674,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -680,6 +690,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial, // missing Static
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
 
@@ -715,6 +727,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
         var b = new ParsedStateMachine
@@ -729,6 +743,8 @@ public class EqualityProperties
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
 
@@ -758,6 +774,8 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             EventIdTypeName = eventIdTypeName.Get,
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states,
             InitialState = initialState,
             Transitions = transitions
@@ -769,6 +787,8 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             EventIdTypeName = eventIdTypeName.Get,
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states,
             InitialState = initialState,
             Transitions = transitions
@@ -798,6 +818,8 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states,
             InitialState = initialState,
             Transitions = transitions
@@ -809,6 +831,8 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states,
             InitialState = initialState,
             Transitions = transitions
@@ -842,6 +866,8 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states1,
             InitialState = initialState1,
             Transitions = transitions
@@ -853,6 +879,8 @@ public class EqualityProperties
             StateTypeName = "MyState",
             EventTypeName = "MyEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states2,
             InitialState = initialState2,
             Transitions = transitions
@@ -882,6 +910,8 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             EventIdTypeName = eventIdTypeName.Get,
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states,
             InitialState = initialState,
             Transitions = transitions
@@ -893,6 +923,8 @@ public class EqualityProperties
             StateTypeName = stateTypeName.Get,
             EventTypeName = eventTypeName.Get,
             EventIdTypeName = eventIdTypeName.Get,
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = states,
             InitialState = initialState,
             Transitions = transitions

@@ -43,6 +43,8 @@ public class LockProperties
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -90,6 +92,8 @@ public class LockProperties
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -134,6 +138,8 @@ public class LockProperties
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -177,6 +183,8 @@ public class LockProperties
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(

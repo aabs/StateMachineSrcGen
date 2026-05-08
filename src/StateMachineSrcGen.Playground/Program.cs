@@ -1,4 +1,3 @@
-using StateMachineSrcGen;
 using StateMachineSrcGen.Playground;
 
 Console.WriteLine("StateMachineSrcGen Playground");
@@ -12,15 +11,15 @@ Console.WriteLine($"Persistence folder: {tempDir}");
 Console.WriteLine($"State file:         {stateFile}");
 Console.WriteLine();
 
-// Order items that travel with the state
-var items = new List<OrderItem>
+// Define the initial state — a rich object with status and order items
+var initialState = new OrderState("Pending", new List<OrderItem>
 {
     new("Widget", 3, 9.99m),
     new("Gadget", 1, 24.95m)
-};
+});
 
-// Wire up file-based persistence with initial state "Pending"
-OrderMachine.UsePersistence(new FileOrderPersistence(stateFile, "Pending", items));
+// Wire up file-based persistence
+OrderMachine.UsePersistence(new FileOrderPersistence(stateFile, initialState));
 
 // Show initial state
 Console.WriteLine("--- Initial State ---");

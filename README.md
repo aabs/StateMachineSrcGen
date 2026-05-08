@@ -19,9 +19,9 @@ The package includes the source generator and required attributes/interfaces.
 
 ## Current Supported Usage
 
-The current end-to-end generation path is centered on string state values.
+State values can be either plain strings or rich objects implementing `IStateMachineState<TStateId>`.
 
-### 1. Define event type
+### Simple (String State)
 
 ```csharp
 using StateMachineSrcGen;
@@ -30,12 +30,6 @@ public record OrderEvent(string Action) : IDispatchableEvent<string>
 {
     public string GetEventId() => Action;
 }
-```
-
-### 2. Declare machine class
-
-```csharp
-using StateMachineSrcGen;
 
 [State("Pending", IsInitial = true)]
 [State("Confirmed")]
@@ -48,7 +42,48 @@ public static partial class OrderMachine
 }
 ```
 
-### 3. Call generated API
+### Rich State Objects
+
+For real-world use, state types can carry domain data alongside the status. Implement `IStateMachineState<TStateId>` so the generator uses `GetStateId()` for transition comparisons while persisting the full object:
+
+```csharp
+using StateMachineSrcGen;
+
+// Rich state object — carries domain data through the lifecycle
+public record OrderState(string Status, List<OrderItem> Items) : IStateMachineState<string>
+{
+    public string GetStateId() => Status;
+}
+
+public record OrderItem(string ProductName, int Quantity, decimal UnitPrice);
+
+// Event type
+public record OrderEvent(string Action) : IDispatchableEvent<string>
+{
+    public string GetEventId() => Action;
+}
+
+// State machine — handlers receive and return the full state object
+[State("Pending", IsInitial = true)]
+[State("Confirmed")]
+[State("Shipped")]
+[Trigger("Confirm")]
+[Trigger("Ship")]
+public static partial class OrderMachine
+{
+    [Transition("Pending", "Confirmed", "Confirm", EventId = "confirm")]
+    public static OrderState HandleConfirm(OrderState state, OrderEvent @event)
+        => state with { Status = "Confirmed" };
+
+    [Transition("Confirmed", "Shipped", "Ship", EventId = "ship")]
+    public static OrderState HandleShip(OrderState state, OrderEvent @event)
+        => state with { Status = "Shipped" };
+}
+```
+
+The generated dispatch code calls `currentState.GetStateId().Equals("Pending")` instead of `currentState == "Pending"`, while `IStatePersistence<OrderState>` stores and retrieves the full object.
+
+### Call generated API
 
 ```csharp
 var result = await OrderMachine.HandleAsync(new OrderEvent("confirm"));
@@ -59,6 +94,7 @@ var result = await OrderMachine.HandleAsync(new OrderEvent("confirm"));
 Class requirements currently enforced:
 - `public static partial class`
 - Event type used by handlers must implement `IDispatchableEvent<TEventId>`
+- State type may optionally implement `IStateMachineState<TStateId>` for rich state objects
 - Class generic parameters must be either 0 or 2
 
 Handler requirements currently enforced:
@@ -93,29 +129,29 @@ The generated code defaults to an in-memory persistence provider. To persist sta
 using System.Text.Json;
 using StateMachineSrcGen;
 
-public sealed class FileOrderPersistence : IStatePersistence<string>
+public sealed class FileOrderPersistence : IStatePersistence<OrderState>
 {
     private readonly string _filePath;
-    private readonly string _initialStatus;
+    private readonly OrderState _initialState;
     private static readonly JsonSerializerOptions s_jsonOptions = new() { WriteIndented = true };
 
-    public FileOrderPersistence(string filePath, string initialStatus)
+    public FileOrderPersistence(string filePath, OrderState initialState)
     {
         _filePath = filePath;
-        _initialStatus = initialStatus;
+        _initialState = initialState;
     }
 
-    public Task<string> LoadAsync()
+    public Task<OrderState> LoadAsync()
     {
         if (!File.Exists(_filePath))
-            return Task.FromResult(_initialStatus);
+            return Task.FromResult(_initialState);
 
         var json = File.ReadAllText(_filePath);
-        var state = JsonSerializer.Deserialize<string>(json, s_jsonOptions);
-        return Task.FromResult(state ?? _initialStatus);
+        var state = JsonSerializer.Deserialize<OrderState>(json, s_jsonOptions);
+        return Task.FromResult(state ?? _initialState);
     }
 
-    public Task SaveAsync(string state)
+    public Task SaveAsync(OrderState state)
     {
         var directory = Path.GetDirectoryName(_filePath);
         if (!string.IsNullOrEmpty(directory))
@@ -135,7 +171,7 @@ The generated code declares `_persistence` as a `private static` field in the pa
 ```csharp
 public static partial class OrderMachine
 {
-    public static void UsePersistence(IStatePersistence<string> persistence)
+    public static void UsePersistence(IStatePersistence<OrderState> persistence)
     {
         _persistence = persistence;
     }
@@ -145,11 +181,17 @@ public static partial class OrderMachine
 ### 3. Wire it up before use
 
 ```csharp
+var initialState = new OrderState("Pending", new List<OrderItem>
+{
+    new("Widget", 3, 9.99m),
+    new("Gadget", 1, 24.95m)
+});
+
 var stateFile = Path.Combine(Path.GetTempPath(), "order-state.json");
-OrderMachine.UsePersistence(new FileOrderPersistence(stateFile, "Pending"));
+OrderMachine.UsePersistence(new FileOrderPersistence(stateFile, initialState));
 
 var result = await OrderMachine.HandleAsync(new OrderEvent("confirm"));
-// State is now persisted to disk
+// Full OrderState (status + items) is now persisted to disk as JSON
 ```
 
 The same pattern works for `_lock` if you need a custom `IStateLock<TState>` implementation (e.g., distributed locking).

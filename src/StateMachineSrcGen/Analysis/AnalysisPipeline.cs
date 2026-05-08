@@ -121,6 +121,8 @@ public static class AnalysisPipeline
             StateTypeName = input.StateTypeName,
             EventTypeName = input.EventTypeName,
             EventIdTypeName = input.EventIdTypeName ?? "string",
+            ImplementsIStateMachineState = input.ImplementsIStateMachineState,
+            StateIdTypeName = input.StateIdTypeName,
             States = new EquatableArray<ValidatedState>(validatedStates),
             InitialState = initialState,
             Transitions = new EquatableArray<ValidatedTransition>(validatedTransitions)

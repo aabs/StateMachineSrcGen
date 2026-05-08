@@ -50,7 +50,9 @@ internal static class EventDispatchEmitter
                 var fromState = stateGroup.Key;
                 var stateTransitions = stateGroup.OrderBy(t => t.DeclarationOrder).ToList();
 
-                sb.AppendLine($"                        if (currentState == \"{EscapeString(fromState)}\")");
+                // Generate state comparison based on whether state type implements IStateMachineState
+                var stateComparison = GenerateStateComparison(input, fromState);
+                sb.AppendLine($"                        if ({stateComparison})");
                 sb.AppendLine("                        {");
 
                 sb.Append(TransitionEvaluatorEmitter.Emit(stateTransitions, input));
@@ -65,6 +67,23 @@ internal static class EventDispatchEmitter
         sb.AppendLine("                }");
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Generates the appropriate state comparison expression.
+    /// For IStateMachineState types: currentState.GetStateId().Equals("StateName")
+    /// For plain string types: currentState == "StateName"
+    /// </summary>
+    private static string GenerateStateComparison(ValidatedStateMachine input, string stateName)
+    {
+        if (input.ImplementsIStateMachineState)
+        {
+            // Use GetStateId() for rich state types
+            return $"currentState.GetStateId().Equals(\"{EscapeString(stateName)}\")";
+        }
+
+        // Direct equality for string state types
+        return $"currentState == \"{EscapeString(stateName)}\"";
     }
 
     private static string EscapeString(string value)

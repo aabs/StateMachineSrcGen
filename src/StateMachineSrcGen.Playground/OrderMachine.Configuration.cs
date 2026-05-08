@@ -11,7 +11,7 @@ public static partial class OrderMachine
     /// Configures the state machine to use the specified persistence provider.
     /// Call this before any HandleAsync invocations.
     /// </summary>
-    public static void UsePersistence(IStatePersistence<string> persistence)
+    public static void UsePersistence(IStatePersistence<OrderState> persistence)
     {
         _persistence = persistence;
     }

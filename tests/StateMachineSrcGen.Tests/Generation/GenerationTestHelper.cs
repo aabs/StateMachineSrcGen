@@ -36,6 +36,8 @@ internal static class GenerationTestHelper
             StateTypeName = stateType,
             EventTypeName = eventType,
             EventIdTypeName = eventIdType,
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -71,6 +73,8 @@ internal static class GenerationTestHelper
             StateTypeName = "string",
             EventTypeName = "TestEvent",
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(ImmutableArray.Create(idle, running, stopped)),
             InitialState = idle,
             Transitions = new EquatableArray<ValidatedTransition>(ImmutableArray.Create(
@@ -124,6 +128,8 @@ internal static class GenerationTestHelper
             StateTypeName = stateType,
             EventTypeName = eventType,
             EventIdTypeName = eventIdType,
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             States = new EquatableArray<ValidatedState>(states.ToImmutableArray()),
             InitialState = initial,
             Transitions = new EquatableArray<ValidatedTransition>(transitions.ToImmutableArray())

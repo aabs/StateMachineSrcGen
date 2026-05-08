@@ -37,6 +37,8 @@ internal static class AnalysisTestHelper
             Modifiers = ClassModifiers.Public | ClassModifiers.Partial | ClassModifiers.Static,
             ImplementsIDispatchableEvent = true,
             EventIdTypeName = "string",
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
     }
@@ -66,6 +68,8 @@ internal static class AnalysisTestHelper
             Modifiers = modifiers,
             ImplementsIDispatchableEvent = implementsIDispatchableEvent,
             EventIdTypeName = eventIdTypeName,
+            ImplementsIStateMachineState = false,
+            StateIdTypeName = null,
             Location = Location.None
         };
     }

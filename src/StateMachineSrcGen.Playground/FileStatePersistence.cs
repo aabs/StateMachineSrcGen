@@ -4,50 +4,43 @@ using StateMachineSrcGen;
 namespace StateMachineSrcGen.Playground;
 
 /// <summary>
-/// Persists the order state machine's status string to a JSON file on disk,
-/// alongside the full order model (items, etc.).
-///
-/// The state machine only tracks a string status value, but this persistence
-/// layer wraps it in a richer OrderState model so domain data survives across
-/// transitions.
+/// Persists the full OrderState object (status + items) as JSON to a file on disk.
+/// Demonstrates how to implement IStatePersistence&lt;TState&gt; for durable storage
+/// when TState is a rich object implementing IStateMachineState.
 /// </summary>
-public sealed class FileOrderPersistence : IStatePersistence<string>
+public sealed class FileOrderPersistence : IStatePersistence<OrderState>
 {
     private readonly string _filePath;
-    private readonly List<OrderItem> _items;
-    private readonly string _initialStatus;
+    private readonly OrderState _initialState;
 
     private static readonly JsonSerializerOptions s_jsonOptions = new()
     {
         WriteIndented = true
     };
 
-    public FileOrderPersistence(string filePath, string initialStatus, List<OrderItem> items)
+    public FileOrderPersistence(string filePath, OrderState initialState)
     {
         _filePath = filePath;
-        _initialStatus = initialStatus;
-        _items = items;
+        _initialState = initialState;
     }
 
-    public Task<string> LoadAsync()
+    public Task<OrderState> LoadAsync()
     {
         if (!File.Exists(_filePath))
-            return Task.FromResult(_initialStatus);
+            return Task.FromResult(_initialState);
 
         var json = File.ReadAllText(_filePath);
-        var order = JsonSerializer.Deserialize<OrderState>(json, s_jsonOptions);
-        return Task.FromResult(order?.Status ?? _initialStatus);
+        var state = JsonSerializer.Deserialize<OrderState>(json, s_jsonOptions);
+        return Task.FromResult(state ?? _initialState);
     }
 
-    public Task SaveAsync(string state)
+    public Task SaveAsync(OrderState state)
     {
         var directory = Path.GetDirectoryName(_filePath);
         if (!string.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
 
-        // Persist the full order model with the updated status
-        var order = new OrderState(state, _items);
-        var json = JsonSerializer.Serialize(order, s_jsonOptions);
+        var json = JsonSerializer.Serialize(state, s_jsonOptions);
         File.WriteAllText(_filePath, json);
         return Task.CompletedTask;
     }

@@ -1,10 +1,17 @@
+using StateMachineSrcGen;
+
 namespace StateMachineSrcGen.Playground;
 
 /// <summary>
-/// The persisted order model. Contains the state machine's status string
-/// plus domain data (line items) that travels with the order through its lifecycle.
+/// Rich state object for the order state machine.
+/// Implements IStateMachineState&lt;string&gt; so the generated dispatch logic
+/// uses GetStateId() for transition comparisons, while the full object
+/// (including Items) is what gets persisted and passed to handlers.
 /// </summary>
-public record OrderState(string Status, List<OrderItem> Items);
+public record OrderState(string Status, List<OrderItem> Items) : IStateMachineState<string>
+{
+    public string GetStateId() => Status;
+}
 
 /// <summary>
 /// A single line item in an order.
