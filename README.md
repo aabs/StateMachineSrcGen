@@ -83,7 +83,76 @@ Generated code currently:
 - Uses an internal default `InMemoryPersistence` and `NoOpLock`.
 - Executes orchestration in this order: acquire lock, load, dispatch/guard/action, save, side effect, release.
 
-At this time, public customization hooks for persistence/lock injection are not part of the documented contract.
+## Custom State Persistence
+
+The generated code defaults to an in-memory persistence provider. To persist state durably (file system, database, etc.), implement `IStatePersistence<TState>` and wire it into the machine via a partial class.
+
+### 1. Implement `IStatePersistence<TState>`
+
+```csharp
+using System.Text.Json;
+using StateMachineSrcGen;
+
+public sealed class FileOrderPersistence : IStatePersistence<string>
+{
+    private readonly string _filePath;
+    private readonly string _initialStatus;
+    private static readonly JsonSerializerOptions s_jsonOptions = new() { WriteIndented = true };
+
+    public FileOrderPersistence(string filePath, string initialStatus)
+    {
+        _filePath = filePath;
+        _initialStatus = initialStatus;
+    }
+
+    public Task<string> LoadAsync()
+    {
+        if (!File.Exists(_filePath))
+            return Task.FromResult(_initialStatus);
+
+        var json = File.ReadAllText(_filePath);
+        var state = JsonSerializer.Deserialize<string>(json, s_jsonOptions);
+        return Task.FromResult(state ?? _initialStatus);
+    }
+
+    public Task SaveAsync(string state)
+    {
+        var directory = Path.GetDirectoryName(_filePath);
+        if (!string.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
+
+        var json = JsonSerializer.Serialize(state, s_jsonOptions);
+        File.WriteAllText(_filePath, json);
+        return Task.CompletedTask;
+    }
+}
+```
+
+### 2. Expose a configuration method via partial class
+
+The generated code declares `_persistence` as a `private static` field in the partial class. Because your hand-written code is part of the same partial class, you can access and reassign it:
+
+```csharp
+public static partial class OrderMachine
+{
+    public static void UsePersistence(IStatePersistence<string> persistence)
+    {
+        _persistence = persistence;
+    }
+}
+```
+
+### 3. Wire it up before use
+
+```csharp
+var stateFile = Path.Combine(Path.GetTempPath(), "order-state.json");
+OrderMachine.UsePersistence(new FileOrderPersistence(stateFile, "Pending"));
+
+var result = await OrderMachine.HandleAsync(new OrderEvent("confirm"));
+// State is now persisted to disk
+```
+
+The same pattern works for `_lock` if you need a custom `IStateLock<TState>` implementation (e.g., distributed locking).
 
 ## Compile-Time Diagnostics
 
